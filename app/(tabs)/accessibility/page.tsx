@@ -24,12 +24,9 @@ const keywordMap: Record<string, string> = {
     'links': 'linkHighlight',
     'large text': 'largeTextMode',
     'large button mode': 'largeButtonMode',
-    'voice control': 'voiceControl',
     'reading mode': 'readingMode',
-    'assistive touch': 'assistiveTouch',
     'audio assistance': 'audioAssistance',
     'pictorial menu': 'pictorialMenu',
-    'voice input': 'voiceInput',
     'color blind': 'colorBlindMode',
 };
 

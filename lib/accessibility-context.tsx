@@ -14,14 +14,11 @@ interface AccessibilitySettings {
     // Seniors settings
     largeTextMode: boolean;
     largeButtonMode: boolean;
-    voiceControl: boolean;
     // Disability settings
     readingMode: boolean;
-    assistiveTouch: boolean;
     // Illiterate settings
     audioAssistance: boolean;
     pictorialMenu: boolean;
-    voiceInput: boolean;
 }
 
 interface AccessibilityContextType {
@@ -45,14 +42,11 @@ const defaultSettings: AccessibilitySettings = {
     // Seniors settings
     largeTextMode: false,
     largeButtonMode: false,
-    voiceControl: true,
     // Disability settings
     readingMode: false,
-    assistiveTouch: false,
     // Illiterate settings
     audioAssistance: false,
     pictorialMenu: false,
-    voiceInput: true,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -178,23 +172,11 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
         root.classList.remove('large-button-mode');
     }
 
-    if (settings.voiceControl) {
-        root.classList.add('voice-control');
-    } else {
-        root.classList.remove('voice-control');
-    }
-
     // Disability settings
     if (settings.readingMode) {
         root.classList.add('reading-mode');
     } else {
         root.classList.remove('reading-mode');
-    }
-
-    if (settings.assistiveTouch) {
-        root.classList.add('assistive-touch');
-    } else {
-        root.classList.remove('assistive-touch');
     }
 
     // Illiterate settings
@@ -210,9 +192,4 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
         root.classList.remove('pictorial-menu');
     }
 
-    if (settings.voiceInput) {
-        root.classList.add('voice-input');
-    } else {
-        root.classList.remove('voice-input');
-    }
 }

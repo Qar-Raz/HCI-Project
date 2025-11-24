@@ -435,13 +435,6 @@ export default function AccessibilityPage() {
             description: t('accessibility.linkHighlightDesc'),
             category: t('accessibility.categoryNavigation'),
         },
-        {
-            key: 'focusIndicator' as const,
-            icon: Focus,
-            label: t('accessibility.focusIndicator'),
-            description: t('accessibility.focusIndicatorDesc'),
-            category: t('accessibility.categoryNavigation'),
-        },
     ];
 
     const accessibilityTips = [
@@ -817,6 +810,28 @@ export default function AccessibilityPage() {
                                 </div>
                             );
                         })}
+
+                        {/* Urdu Mode Toggle */}
+                        <div className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50">
+                            <div className="flex items-center gap-4 flex-1">
+                                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-purple-100 text-purple-600">
+                                    <Globe className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-gray-900 mb-0.5">Urdu Mode</h4>
+                                    <p className="text-sm text-gray-600">Switch language to Urdu</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => updateSetting('language', language === 'ur' ? 'en' : 'ur')}
+                                className={`relative w-14 h-8 rounded-full transition-colors duration-200 ease-in-out shrink-0 ml-4 ${language === 'ur' ? 'bg-[#FF6B00]' : 'bg-gray-300'}`}
+                                aria-label="Toggle Urdu Mode"
+                                aria-checked={language === 'ur' ? 'true' : 'false'}
+                                role="switch"
+                            >
+                                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-md ${language === 'ur' ? 'translate-x-7 left-0.5' : 'translate-x-0 left-0.5'}`} />
+                            </button>
+                        </div>
                     </div>
                 </section>
 

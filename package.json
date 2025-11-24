@@ -6,14 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "db:seed": "tsx lib/seed.ts",
-    "db:init": "tsx lib/db.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.4",
-    "@types/better-sqlite3": "^7.6.13",
-    "better-sqlite3": "^12.4.1",
     "lucide-react": "^0.553.0",
     "next": "16.0.1",
     "react": "19.2.0",

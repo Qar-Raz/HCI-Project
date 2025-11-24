@@ -11,29 +11,9 @@ export default function LocationPage() {
     const { userId } = useAuth();
     const { currentAddress, setCurrentAddress, savedPlaces, addSavedPlace, setLocationUpdated } = useLocation();
     const [address, setAddress] = useState(currentAddress);
-    const [dbSavedPlaces, setDbSavedPlaces] = useState<any[]>([]);
     
-    // Fetch saved addresses from DB if logged in
-    useEffect(() => {
-        if (userId) {
-            fetch('/api/user/addresses')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.addresses) {
-                        setDbSavedPlaces(data.addresses);
-                        // If there's a default address and we haven't set one yet, use it
-                        const defaultAddr = data.addresses.find((a: any) => a.is_default);
-                        if (defaultAddr && currentAddress === '123 Main St, Downtown') { // Only override default placeholder
-                             setCurrentAddress(defaultAddr.address);
-                             setAddress(defaultAddr.address);
-                        }
-                    }
-                })
-                .catch(err => console.error(err));
-        }
-    }, [userId, currentAddress, setCurrentAddress]);
-
-    const displaySavedPlaces = userId ? dbSavedPlaces : savedPlaces;
+    // Use savedPlaces directly from context (which is now user-aware via localStorage)
+    const displaySavedPlaces = savedPlaces;
 
     const [isListening, setIsListening] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
@@ -76,34 +56,10 @@ export default function LocationPage() {
 
     const handleAddAddress = async () => {
         if (newAddressValue) {
-            if (userId) {
-                try {
-                    const res = await fetch('/api/user/addresses', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            type: newAddressType,
-                            address: newAddressValue,
-                            isDefault: false
-                        })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        setDbSavedPlaces(prev => [...prev, {
-                            id: data.id,
-                            type: newAddressType,
-                            address: newAddressValue
-                        }]);
-                    }
-                } catch (error) {
-                    console.error('Error saving address:', error);
-                }
-            } else {
-                addSavedPlace({
-                    type: newAddressType,
-                    address: newAddressValue,
-                });
-            }
+            addSavedPlace({
+                type: newAddressType,
+                address: newAddressValue,
+            });
             setShowAddAddressModal(false);
             setNewAddressValue('');
         }

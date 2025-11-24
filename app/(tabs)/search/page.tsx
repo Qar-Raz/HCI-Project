@@ -94,8 +94,9 @@ function SearchContent() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#F8F9FA] via-white to-[#F8F9FA] pb-20">
             {/* Header Section */}
-            <div className="bg-gradient-to-br from-[#FF6B00] via-[#FF7A1F] to-[#FF8C3A] sticky top-0 z-40 shadow-2xl">
-                <div className="max-w-7xl mx-auto px-4 pb-8">
+            <div className="sticky top-0 z-40 shadow-2xl">
+                <div className="bg-gradient-to-br from-[#FF6B00] via-[#FF7A1F] to-[#FF8C3A]">
+                    <div className="max-w-7xl mx-auto px-4 pb-8">
                     {/* Title */}
                     <div className="flex items-center justify-between mb-6">
 
@@ -293,6 +294,7 @@ function SearchContent() {
                     </div>
                 </div>
             )}
+            </div>
 
             {/* Results Section */}
             <div className="max-w-7xl mx-auto px-4 py-6">
@@ -344,7 +346,7 @@ function SearchContent() {
 
                 {/* Restaurant Grid */}
                 {filteredAndSortedRestaurants.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className={`${settings.pictorialMenu ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
                         {filteredAndSortedRestaurants.map((restaurant, index) => (
                             <div
                                 key={restaurant.id}

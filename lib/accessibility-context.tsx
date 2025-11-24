@@ -10,17 +10,15 @@ interface AccessibilitySettings {
     textSpacing: boolean;
     readableFont: boolean;
     linkHighlight: boolean;
-    focusIndicator: boolean;
     colorBlindMode: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
     // Seniors settings
     largeTextMode: boolean;
-    simplifiedNavigation: boolean;
+    largeButtonMode: boolean;
     voiceControl: boolean;
     // Disability settings
-    screenReaderOptimization: boolean;
+    readingMode: boolean;
     assistiveTouch: boolean;
     // Illiterate settings
-    iconOnlyMode: boolean;
     audioAssistance: boolean;
     pictorialMenu: boolean;
     voiceInput: boolean;
@@ -43,20 +41,18 @@ const defaultSettings: AccessibilitySettings = {
     textSpacing: false,
     readableFont: false,
     linkHighlight: false,
-    focusIndicator: true,
     colorBlindMode: 'none',
     // Seniors settings
     largeTextMode: false,
-    simplifiedNavigation: false,
-    voiceControl: false,
+    largeButtonMode: false,
+    voiceControl: true,
     // Disability settings
-    screenReaderOptimization: false,
+    readingMode: false,
     assistiveTouch: false,
     // Illiterate settings
-    iconOnlyMode: false,
     audioAssistance: false,
     pictorialMenu: false,
-    voiceInput: false,
+    voiceInput: true,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -163,13 +159,6 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
         root.classList.remove('link-highlight');
     }
 
-    // Focus indicator
-    if (settings.focusIndicator) {
-        root.classList.add('focus-indicator');
-    } else {
-        root.classList.remove('focus-indicator');
-    }
-
     // Color blind mode
     root.classList.remove('protanopia', 'deuteranopia', 'tritanopia');
     if (settings.colorBlindMode !== 'none') {
@@ -183,10 +172,10 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
         root.classList.remove('large-text-mode');
     }
 
-    if (settings.simplifiedNavigation) {
-        root.classList.add('simplified-navigation');
+    if (settings.largeButtonMode) {
+        root.classList.add('large-button-mode');
     } else {
-        root.classList.remove('simplified-navigation');
+        root.classList.remove('large-button-mode');
     }
 
     if (settings.voiceControl) {
@@ -196,10 +185,10 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
     }
 
     // Disability settings
-    if (settings.screenReaderOptimization) {
-        root.classList.add('screen-reader-optimized');
+    if (settings.readingMode) {
+        root.classList.add('reading-mode');
     } else {
-        root.classList.remove('screen-reader-optimized');
+        root.classList.remove('reading-mode');
     }
 
     if (settings.assistiveTouch) {
@@ -209,12 +198,6 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
     }
 
     // Illiterate settings
-    if (settings.iconOnlyMode) {
-        root.classList.add('icon-only-mode');
-    } else {
-        root.classList.remove('icon-only-mode');
-    }
-
     if (settings.audioAssistance) {
         root.classList.add('audio-assistance');
     } else {

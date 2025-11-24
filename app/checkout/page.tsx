@@ -53,6 +53,11 @@ export default function CheckoutPage() {
     ];
 
     const handlePlaceOrder = async () => {
+        if (!userId) {
+            router.push('/login?redirect=/checkout');
+            return;
+        }
+
         setIsPlacingOrder(true);
 
         try {

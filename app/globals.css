@@ -681,3 +681,61 @@ html.tritanopia::after {
   outline-offset: 3px !important;
   box-shadow: 0 0 0 6px rgba(255, 107, 0, 0.2) !important;
 }
+
+/* Large Button Mode */
+.large-button-mode button,
+.large-button-mode a[class*="bg-"],
+.large-button-mode input[type="button"],
+.large-button-mode input[type="submit"],
+.large-button-mode [role="button"] {
+  min-height: 64px !important;
+  font-size: 1.1em !important;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+.large-button-mode button svg,
+.large-button-mode a svg {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+/* Reading Mode */
+.reading-mode {
+  --background: #fdf6e3 !important;
+  --foreground: #2b2b2b !important;
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.reading-mode body {
+    background-color: #fdf6e3 !important;
+}
+
+.reading-mode p, 
+.reading-mode h1, 
+.reading-mode h2, 
+.reading-mode h3, 
+.reading-mode h4, 
+.reading-mode h5, 
+.reading-mode h6,
+.reading-mode span,
+.reading-mode li {
+  color: #2b2b2b !important;
+  line-height: 1.8 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.reading-mode .bg-white,
+.reading-mode .bg-gray-50,
+.reading-mode .bg-gray-100 {
+    background-color: #eee8d5 !important;
+    border-color: #d3cbb8 !important;
+}
+
+.reading-mode .text-gray-500,
+.reading-mode .text-gray-600,
+.reading-mode .text-gray-700,
+.reading-mode .text-gray-900 {
+    color: #2b2b2b !important;
+}

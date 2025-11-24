@@ -22,14 +22,11 @@ const keywordMap: Record<string, string> = {
     'font': 'readableFont',
     'link highlight': 'linkHighlight',
     'links': 'linkHighlight',
-    'focus indicator': 'focusIndicator',
-    'focus': 'focusIndicator',
     'large text': 'largeTextMode',
-    'simplified navigation': 'simplifiedNavigation',
+    'large button mode': 'largeButtonMode',
     'voice control': 'voiceControl',
-    'screen reader': 'screenReaderOptimization',
+    'reading mode': 'readingMode',
     'assistive touch': 'assistiveTouch',
-    'icon only': 'iconOnlyMode',
     'audio assistance': 'audioAssistance',
     'pictorial menu': 'pictorialMenu',
     'voice input': 'voiceInput',
@@ -65,7 +62,10 @@ export default function AccessibilityPage() {
             };
             
             utterance.onerror = (e) => {
-                console.error("Speech synthesis error", e);
+                // Ignore errors caused by cancellation
+                if (e.error !== 'canceled' && e.error !== 'interrupted') {
+                    console.error("Speech synthesis error", e);
+                }
                 if (onEnd) onEnd();
                 utteranceRef.current = null;
             };
@@ -354,18 +354,11 @@ export default function AccessibilityPage() {
             color: 'bg-blue-100 text-blue-600',
         },
         {
-            key: 'simplifiedNavigation' as const,
+            key: 'largeButtonMode' as const,
             icon: Zap,
-            label: t('accessibility.simplifiedNavigation'),
-            description: t('accessibility.simplifiedNavigationDesc'),
+            label: t('accessibility.largeButtonMode'),
+            description: t('accessibility.largeButtonModeDesc'),
             color: 'bg-green-100 text-green-600',
-        },
-        {
-            key: 'voiceControl' as const,
-            icon: Mic,
-            label: t('accessibility.voiceControl'),
-            description: t('accessibility.voiceControlDesc'),
-            color: 'bg-purple-100 text-purple-600',
         },
         {
             key: 'highContrast' as const,
@@ -379,10 +372,10 @@ export default function AccessibilityPage() {
     // Disability Section Settings
     const disabilitySettings = [
         {
-            key: 'screenReaderOptimization' as const,
-            icon: Volume2,
-            label: t('accessibility.screenReader'),
-            description: t('accessibility.screenReaderDesc'),
+            key: 'readingMode' as const,
+            icon: BookOpen,
+            label: t('accessibility.readingMode'),
+            description: t('accessibility.readingModeDesc'),
             color: 'bg-rose-100 text-rose-600',
         },
        
@@ -405,13 +398,6 @@ export default function AccessibilityPage() {
     // Illiterate Section Settings
     const illiterateSettings = [
         {
-            key: 'iconOnlyMode' as const,
-            icon: Image,
-            label: t('accessibility.iconOnlyMode'),
-            description: t('accessibility.iconOnlyModeDesc'),
-            color: 'bg-violet-100 text-violet-600',
-        },
-        {
             key: 'audioAssistance' as const,
             icon: Volume2,
             label: t('accessibility.audioAssistance'),
@@ -424,13 +410,6 @@ export default function AccessibilityPage() {
             label: t('accessibility.pictorialMenu'),
             description: t('accessibility.pictorialMenuDesc'),
             color: 'bg-orange-100 text-orange-600',
-        },
-        {
-            key: 'voiceInput' as const,
-            icon: Mic,
-            label: t('accessibility.voiceInput'),
-            description: t('accessibility.voiceInputDesc'),
-            color: 'bg-lime-100 text-lime-600',
         },
     ];
 
@@ -762,6 +741,52 @@ export default function AccessibilityPage() {
                         {illiterateSettings.map((setting) => {
                             const Icon = setting.icon;
                             const isEnabled = settings[setting.key];
+
+                            if (setting.key === 'audioAssistance') {
+                                return (
+                                    <div
+                                        key={setting.key}
+                                        className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50"
+                                    >
+                                        <div className="flex items-center gap-4 flex-1">
+                                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${setting.color}`}>
+                                                <Icon className="w-5 h-5" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
+                                                <p className="text-sm text-gray-600">{setting.description}</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                if (isEnabled) {
+                                                    // Stop
+                                                    window.speechSynthesis.cancel();
+                                                    updateSetting(setting.key, false);
+                                                } else {
+                                                    // Start
+                                                    const features = [
+                                                        ...seniorsSettings,
+                                                        ...disabilitySettings,
+                                                        ...illiterateSettings,
+                                                        ...toggleSettings
+                                                    ].map(s => `${s.label}: ${s.description}`).join('. ');
+                                                    speak(`Here are the available accessibility features. ${features}`);
+                                                    updateSetting(setting.key, true);
+                                                }
+                                            }}
+                                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                                isEnabled 
+                                                    ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                                                    : 'bg-green-100 text-green-600 hover:bg-green-200'
+                                            }`}
+                                        >
+                                            {isEnabled ? 'Stop' : 'Start'}
+                                        </button>
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <div
                                     key={setting.key}

@@ -84,8 +84,8 @@ export default function RestaurantCard({ restaurant, pictorialMode = false }: Re
 
     return (
         <Link href={`/restaurant/${restaurant.slug}`} className="group relative block">
-            <Card className={`w-full shrink-0 hover:scale-[1.02] transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-[#FF6B00]/20 card-shine ${pictorialMode ? 'h-[320px]' : ''}`}>
-                <div className={`relative ${pictorialMode ? 'h-64' : 'h-44'} overflow-hidden transition-all duration-300`}>
+            <Card className={`w-full shrink-0 hover:scale-[1.02] transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-[#FF6B00]/20 card-shine ${pictorialMode ? 'h-[400px]' : ''}`}>
+                <div className={`relative ${pictorialMode ? 'h-80' : 'h-44'} overflow-hidden transition-all duration-300`}>
                     <Image
                         src={restaurant.image}
                         alt={restaurant.name}
@@ -109,7 +109,7 @@ export default function RestaurantCard({ restaurant, pictorialMode = false }: Re
                     </button>
 
                     {/* Discount Badge */}
-                    {restaurant.discount && (
+                    {restaurant.discount && !pictorialMode && (
                         <div className="absolute top-3 left-3 bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 animate-in">
                             <TrendingUp size={12} />
                             {restaurant.discount}% OFF
@@ -117,7 +117,7 @@ export default function RestaurantCard({ restaurant, pictorialMode = false }: Re
                     )}
 
                     {/* Rating Badge */}
-                    {restaurant.rating >= 4.5 && !restaurant.isClosed && (
+                    {restaurant.rating >= 4.5 && !restaurant.isClosed && !pictorialMode && (
                         <div className="absolute top-12 right-3 bg-white/95 backdrop-blur-sm text-[#212529] text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-md flex items-center gap-1">
                             <Star size={12} className="fill-[#FFC107] text-[#FFC107]" />
                             {restaurant.rating}
@@ -136,7 +136,7 @@ export default function RestaurantCard({ restaurant, pictorialMode = false }: Re
                 </div>
 
                 <div className="p-5 bg-white">
-                    <h3 className={`font-bold text-[#212529] ${pictorialMode ? 'text-2xl text-center' : 'text-lg'} mb-2 truncate group-hover:text-[#FF6B00] transition-colors`}>
+                    <h3 className={`font-bold text-[#212529] ${pictorialMode ? 'text-3xl text-center mt-2' : 'text-lg'} mb-2 truncate group-hover:text-[#FF6B00] transition-colors`}>
                         {restaurant.name}
                     </h3>
 

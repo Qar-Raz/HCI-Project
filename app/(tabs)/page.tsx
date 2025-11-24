@@ -468,7 +468,7 @@ export default function Home() {
                             {!settings.iconOnlyMode && (searchQuery || selectedCuisine ? t('home.searchResults') : t('home.allRestaurants'))}
                         </h2>
                         <div
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                            className={`${settings.pictorialMenu ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'}`}
                             role="list"
                             aria-label={searchQuery || selectedCuisine ? 'Filtered restaurants' : 'All restaurants'}
                         >

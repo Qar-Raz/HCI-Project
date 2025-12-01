@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Search, X, TrendingUp, Sparkles, ChevronRight } from 'lucide-react';
+import { MapPin, Search, X, TrendingUp, Sparkles, ChevronRight, Mic } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import RestaurantCard from '@/components/shared/RestaurantCard';
 import { restaurants, cuisineCategories } from '@/lib/data';
@@ -23,6 +23,8 @@ export default function Home() {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const mainContentRef = useRef<HTMLDivElement>(null);
     const [announceMessage, setAnnounceMessage] = useState('');
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef<any>(null);
 
     useEffect(() => {
         if (locationUpdated) {
@@ -86,6 +88,69 @@ export default function Home() {
             // Navigate to search page with search query
             router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
         }
+    };
+
+    const startVoiceSearch = () => {
+        if (typeof window !== 'undefined' && !('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            const newToast: ToastMessage = {
+                id: Date.now().toString(),
+                message: 'Speech recognition is not supported in this browser',
+                type: 'error'
+            };
+            setToasts(prev => [...prev, newToast]);
+            return;
+        }
+
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setSearchQuery(transcript);
+            setAnnounceMessage(`Voice search: ${transcript}`);
+        };
+
+        recognition.onerror = () => {
+            setIsListening(false);
+            const newToast: ToastMessage = {
+                id: Date.now().toString(),
+                message: 'Voice search failed. Please try again.',
+                type: 'error'
+            };
+            setToasts(prev => [...prev, newToast]);
+        };
+
+        try {
+            recognition.start();
+        } catch (error) {
+            setIsListening(false);
+            const newToast: ToastMessage = {
+                id: Date.now().toString(),
+                message: 'Could not start voice search',
+                type: 'error'
+            };
+            setToasts(prev => [...prev, newToast]);
+        }
+    };
+
+    const stopVoiceSearch = () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
+        setIsListening(false);
     };
 
     const skipToMainContent = () => {
@@ -186,21 +251,34 @@ export default function Home() {
                         <label htmlFor="restaurant-search" className="sr-only">
                             {t('home.searchPlaceholder')}
                         </label>
-                        <Input
-                            id="restaurant-search"
-                            ref={searchInputRef}
-                            placeholder={t('home.searchPlaceholder')}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearchSubmit}
-                            onFocus={() => setIsSearchFocused(true)}
-                            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                            icon={<Search size={20} className="text-[#FF6B00]" aria-hidden="true" />}
-                            aria-describedby={searchQuery ? 'search-hint' : undefined}
-                            aria-autocomplete="list"
-                            aria-expanded={isSearchFocused && !searchQuery}
-                            aria-controls={isSearchFocused && !searchQuery ? 'popular-searches' : undefined}
-                        />
+                        <div className="relative">
+                            <Input
+                                id="restaurant-search"
+                                ref={searchInputRef}
+                                placeholder={t('home.searchPlaceholder')}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={handleSearchSubmit}
+                                onFocus={() => setIsSearchFocused(true)}
+                                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                                icon={<Search size={20} className="text-[#FF6B00]" aria-hidden="true" />}
+                                aria-describedby={searchQuery ? 'search-hint' : undefined}
+                                aria-autocomplete="list"
+                                className="pr-12"
+                            />
+                            <button
+                                onClick={isListening ? stopVoiceSearch : startVoiceSearch}
+                                className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 ${
+                                    isListening 
+                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse' 
+                                        : 'bg-gray-100 text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white'
+                                }`}
+                                aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+                                title={isListening ? 'Stop voice search' : 'Start voice search'}
+                            >
+                                <Mic size={16} />
+                            </button>
+                        </div>
                         {searchQuery && (
                             <>
                                 <span id="search-hint" className="sr-only">
@@ -211,7 +289,7 @@ export default function Home() {
                                         setSearchQuery('');
                                         setAnnounceMessage('Search cleared');
                                     }}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                                    className="absolute right-16 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
                                     aria-label="Clear search input"
                                 >
                                     <X size={18} className="text-[#6C757D]" aria-hidden="true" />

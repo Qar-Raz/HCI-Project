@@ -62,7 +62,7 @@ export default function BottomNav() {
                                 </div>
 
                                 {/* Label */}
-                                {!settings.iconOnlyMode && (
+                                {!((settings as any)?.iconOnlyMode) && (
                                     <span
                                         className={`text-[10px] font-semibold mt-1 ${isActive
                                             ? 'text-[#FF6B00]'

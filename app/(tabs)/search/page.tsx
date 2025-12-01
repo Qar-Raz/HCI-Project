@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search as SearchIcon, X, SlidersHorizontal, Star, Clock, MapPin, TrendingUp, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search as SearchIcon, X, SlidersHorizontal, Star, Clock, MapPin, TrendingUp, Sparkles, ChevronDown, ChevronUp, Mic } from 'lucide-react';
 import RestaurantCard from '@/components/shared/RestaurantCard';
 import { restaurants, cuisineCategories } from '@/lib/data';
 import { useAccessibility } from '@/lib/accessibility-context';
@@ -21,6 +21,8 @@ function SearchContent() {
     const [showFilters, setShowFilters] = useState(false);
     const [showOpenOnly, setShowOpenOnly] = useState(false);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef<any>(null);
 
     // Filter and sort restaurants
     const filteredAndSortedRestaurants = useMemo(() => {
@@ -88,6 +90,53 @@ function SearchContent() {
         (showOpenOnly ? 1 : 0) +
         (sortBy !== 'relevance' ? 1 : 0);
 
+    const startVoiceSearch = () => {
+        if (typeof window !== 'undefined' && !('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            alert('Speech recognition is not supported in this browser.');
+            return;
+        }
+
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setSearchQuery(transcript);
+        };
+
+        recognition.onerror = () => {
+            setIsListening(false);
+            alert('Voice search failed. Please try again.');
+        };
+
+        try {
+            recognition.start();
+        } catch (error) {
+            setIsListening(false);
+            alert('Could not start voice search');
+        }
+    };
+
+    const stopVoiceSearch = () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
+        setIsListening(false);
+    };
+
     const popularSearches = ['Pizza', 'Burger', 'Sushi', 'Italian', 'Chinese', 'Dessert'];
     const recentSearches = ['Thai Food', 'Fast Food', 'Healthy'];
 
@@ -123,8 +172,20 @@ function SearchContent() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onFocus={() => setIsSearchFocused(true)}
                                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                                className="w-full pl-12 pr-12 py-4 bg-white border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:ring-4 focus:ring-white/30 transition-all duration-300 placeholder:text-[#6C757D] text-lg shadow-2xl"
+                                className="w-full pl-12 pr-20 py-4 bg-white border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:ring-4 focus:ring-white/30 transition-all duration-300 placeholder:text-[#6C757D] text-lg shadow-2xl"
                             />
+                            <button
+                                onClick={isListening ? stopVoiceSearch : startVoiceSearch}
+                                className={`absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 ${
+                                    isListening 
+                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse' 
+                                        : 'bg-white/20 text-white hover:bg-white/30'
+                                }`}
+                                aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+                                title={isListening ? 'Stop voice search' : 'Start voice search'}
+                            >
+                                <Mic size={16} />
+                            </button>
                             {searchQuery && (
                                 <button
                                     onClick={() => setSearchQuery('')}

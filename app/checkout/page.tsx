@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@clerk/nextjs';
+import { useAccessibility } from '@/lib/accessibility-context';
 import { Home, CreditCard, MapPin, Clock, Percent, ChevronRight, ArrowLeft, Check, AlertCircle, Bike, Gift } from 'lucide-react';
 import BottomNav from '@/components/layout/BottomNav';
+import SpeakButton from '@/components/ui/SpeakButton';
 
 export default function CheckoutPage() {
     const router = useRouter();
     const { userId } = useAuth();
     const { cart, clearCart } = useCart();
+    const { settings } = useAccessibility();
     const [deliveryOption, setDeliveryOption] = useState<'standard' | 'priority'>('standard');
     const [paymentMethod, setPaymentMethod] = useState('visa-2013');
     const [contactlessDelivery, setContactlessDelivery] = useState(false);
@@ -107,10 +110,16 @@ export default function CheckoutPage() {
                         >
                             <ArrowLeft size={24} className="text-[#212529]" />
                         </button>
-                        <div>
+                        <div className="flex-1">
                             <h1 className="text-2xl font-bold text-[#212529]">Review and place your order</h1>
                             <p className="text-sm text-[#6C757D]">Complete your purchase</p>
                         </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Review and place your order. You are ordering from ${restaurant}. Your total is ${total.toFixed(2)} rupees.`}
+                                size="md"
+                            />
+                        )}
                     </div>
                 </div>
             </div>
@@ -128,9 +137,17 @@ export default function CheckoutPage() {
                                     </div>
                                     Delivery address
                                 </h2>
-                                <button className="text-[#FF6B00] font-semibold hover:text-[#FF8C3A] transition-colors">
-                                    Change
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    {settings.audioAssistance && (
+                                        <SpeakButton
+                                            text="Delivery address: Home, Red Planet Residences, Mars, Crater Olympus Mons East, Unit 42. Tap Change to modify your delivery address."
+                                            size="sm"
+                                        />
+                                    )}
+                                    <button className="text-[#FF6B00] font-semibold hover:text-[#FF8C3A] transition-colors">
+                                        Change
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="flex items-start gap-3 mb-4">
@@ -164,12 +181,20 @@ export default function CheckoutPage() {
 
                         {/* Delivery Options */}
                         <div className="bg-white border-2 border-orange-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
-                            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
-                                <div className="p-2 bg-linear-to-br from-blue-100 to-blue-50 rounded-lg">
-                                    <Clock size={20} className="text-blue-600" />
-                                </div>
-                                Delivery options
-                            </h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-bold text-[#212529] flex items-center gap-2">
+                                    <div className="p-2 bg-linear-to-br from-blue-100 to-blue-50 rounded-lg">
+                                        <Clock size={20} className="text-blue-600" />
+                                    </div>
+                                    Delivery options
+                                </h2>
+                                {settings.audioAssistance && (
+                                    <SpeakButton
+                                        text={`Delivery options. Standard delivery takes 15 to 30 minutes and is free. Priority delivery takes 10 to 25 minutes and costs 50 rupees extra. Currently selected: ${deliveryOption} delivery.`}
+                                        size="sm"
+                                    />
+                                )}
+                            </div>
 
                             <div className="space-y-3">
                                 <button
@@ -230,9 +255,17 @@ export default function CheckoutPage() {
                                     </div>
                                     Payment
                                 </h2>
-                                <button className="text-[#FF6B00] font-semibold hover:text-[#FF8C3A] transition-colors">
-                                    Show all
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    {settings.audioAssistance && (
+                                        <SpeakButton
+                                            text={`Payment methods available. ${paymentMethods.map(m => `${m.type} ending in ${m.last4}`).join(', ')}. Currently selected: ${paymentMethods.find(m => m.id === paymentMethod)?.type || 'none'}.`}
+                                            size="sm"
+                                        />
+                                    )}
+                                    <button className="text-[#FF6B00] font-semibold hover:text-[#FF8C3A] transition-colors">
+                                        Show all
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-3">
@@ -277,12 +310,20 @@ export default function CheckoutPage() {
 
                         {/* Tip Your Rider */}
                         <div className="bg-white border-2 border-orange-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
-                            <h2 className="text-xl font-bold text-[#212529] mb-2 flex items-center gap-2">
-                                <div className="p-2 bg-linear-to-br from-purple-100 to-purple-50 rounded-lg">
-                                    <Bike size={20} className="text-purple-600" />
-                                </div>
-                                Tip your Rider
-                            </h2>
+                            <div className="flex items-center justify-between mb-2">
+                                <h2 className="text-xl font-bold text-[#212529] flex items-center gap-2">
+                                    <div className="p-2 bg-linear-to-br from-purple-100 to-purple-50 rounded-lg">
+                                        <Bike size={20} className="text-purple-600" />
+                                    </div>
+                                    Tip your Rider
+                                </h2>
+                                {settings.audioAssistance && (
+                                    <SpeakButton
+                                        text={`Tip your rider. Your delivery person receives 100% of the tip. Options: No tip, 50 rupees, 100 rupees, or 200 rupees. Currently selected: ${tipAmount === 0 ? 'No tip' : `${tipAmount} rupees`}.`}
+                                        size="sm"
+                                    />
+                                )}
+                            </div>
                             <p className="text-sm text-[#6C757D] mb-4">Help fuel their jetpack! 🚀 Your astronaut receives 100% of the tip</p>
 
                             <div className="flex flex-wrap gap-3 mb-4">
@@ -323,7 +364,15 @@ export default function CheckoutPage() {
                     {/* Right Column - Order Summary */}
                     <div className="lg:col-span-1">
                         <div className="bg-white border-2 border-orange-100 rounded-2xl p-6 shadow-lg sticky top-24">
-                            <h2 className="text-xl font-bold text-[#212529] mb-4">Your order from</h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-bold text-[#212529]">Your order from</h2>
+                                {settings.audioAssistance && (
+                                    <SpeakButton
+                                        text={`Order summary from ${restaurant}. ${cart.items.map(item => `${item.quantity} ${item.foodItem.name} for ${(item.foodItem.price * item.quantity).toFixed(2)} rupees`).join(', ')}. Subtotal: ${subtotal.toFixed(2)} rupees. Service fee: ${serviceFee.toFixed(2)} rupees. ${tipAmount > 0 ? `Rider tip: ${tipAmount} rupees.` : ''} Total: ${total.toFixed(2)} rupees.`}
+                                        size="sm"
+                                    />
+                                )}
+                            </div>
                             <p className="text-[#FF6B00] font-semibold text-lg mb-6">{restaurant}</p>
 
                             {/* Order Items */}

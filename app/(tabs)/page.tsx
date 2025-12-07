@@ -24,9 +24,16 @@ export default function Home() {
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const mainContentRef = useRef<HTMLDivElement>(null);
+    const allRestaurantsRef = useRef<HTMLElement>(null);
     const [announceMessage, setAnnounceMessage] = useState('');
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<any>(null);
+
+    // Scroll to all restaurants section
+    const scrollToRestaurants = () => {
+        allRestaurantsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setAnnounceMessage('Scrolled to all restaurants');
+    };
 
     useEffect(() => {
         if (locationUpdated) {
@@ -357,55 +364,112 @@ export default function Home() {
                 tabIndex={-1}
                 aria-label="Main content"
             >
-                {/* Enhanced Promotional Banner */}
+                {/* Enhanced Promotional Banner - SUPER BEAUTIFUL */}
                 <section
-                    className="relative h-44 bg-linear-to-r from-[#FF6B00] via-[#FF7A1F] to-[#FF8C3A] rounded-2xl overflow-visible shadow-xl group hover:shadow-2xl transition-all duration-500"
+                    onClick={scrollToRestaurants}
+                    className="relative h-52 md:h-56 bg-linear-to-br from-[#FF6B00] via-[#FF5722] to-[#E64A19] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer transform hover:scale-[1.02] hover:shadow-[0_25px_60px_-12px_rgba(255,107,0,0.5)] transition-all duration-500"
                     aria-labelledby="promo-heading"
-                    role="region"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && scrollToRestaurants()}
+                    aria-label="Click to see all restaurants and get 30% off your first order"
                 >
                     {/* Audio Assistance Speaker Button */}
                     {settings.audioAssistance && (
-                        <div className="absolute top-2 right-2 z-40">
+                        <div className="absolute top-3 right-3 z-40" onClick={(e) => e.stopPropagation()}>
                             <SpeakButton
-                                text="Special Offer! Get 30% off on your first order today! Tap Order Now to claim this discount."
+                                text="Special Offer! Get 30% off on your first order today! Tap this banner to see all restaurants."
                                 size="md"
                             />
                         </div>
                     )}
 
-                    {/* Animated Background Pattern */}
-                    <div className="absolute inset-0 opacity-10">
-                        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMTAgMTBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00eiIvPjwvZz48L2c+PC9zdmc+')] animate-pulse"></div>
+                    {/* Animated Gradient Overlay */}
+                    <div className="absolute inset-0 bg-linear-to-r from-black/20 via-transparent to-black/10"></div>
+
+                    {/* Animated Particles/Sparkles Background */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <div className="absolute top-4 left-[10%] w-2 h-2 bg-yellow-300 rounded-full animate-ping opacity-75"></div>
+                        <div className="absolute top-8 left-[30%] w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-300"></div>
+                        <div className="absolute top-12 left-[50%] w-2 h-2 bg-yellow-200 rounded-full animate-ping delay-500 opacity-60"></div>
+                        <div className="absolute top-6 left-[70%] w-1 h-1 bg-white rounded-full animate-pulse delay-700"></div>
+                        <div className="absolute bottom-16 left-[20%] w-1.5 h-1.5 bg-yellow-300 rounded-full animate-ping delay-1000 opacity-70"></div>
+                        <div className="absolute bottom-8 left-[40%] w-2 h-2 bg-white rounded-full animate-pulse delay-200 opacity-50"></div>
                     </div>
 
-                    <div className="absolute inset-0 flex items-center justify-between px-8">
-                        <div className="text-white space-y-1 relative z-10">
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium" role="status">
-                                <Sparkles size={14} className="text-yellow-300" aria-hidden="true" />
-                                <span>{t('home.specialOffer')}</span>
+                    {/* Floating Food Emojis */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <span className="absolute top-6 right-[15%] text-2xl opacity-30 animate-bounce delay-100">🍕</span>
+                        <span className="absolute bottom-8 right-[25%] text-xl opacity-25 animate-bounce delay-300">🍟</span>
+                        <span className="absolute top-16 right-[35%] text-lg opacity-20 animate-bounce delay-500">🌮</span>
+                    </div>
+
+                    {/* Glowing Orbs */}
+                    <div className="absolute -top-10 -left-10 w-40 h-40 bg-yellow-400/30 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-orange-300/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+
+                    {/* Main Content */}
+                    <div className="absolute inset-0 flex items-center justify-between px-6 md:px-10">
+                        <div className="text-white space-y-3 relative z-10 max-w-[60%] md:max-w-[50%]">
+                            {/* Special Offer Badge */}
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/25 backdrop-blur-md rounded-full text-xs md:text-sm font-bold border border-white/30 shadow-lg animate-pulse">
+                                <Sparkles size={16} className="text-yellow-300 drop-shadow-glow" aria-hidden="true" />
+                                <span className="text-yellow-100">{t('home.specialOffer')}</span>
+                                <Sparkles size={16} className="text-yellow-300 drop-shadow-glow" aria-hidden="true" />
                             </div>
-                            <h2 id="promo-heading" className="text-3xl lg:text-4xl font-extrabold drop-shadow-lg">
-                                {t('home.getOff')}
+
+                            {/* Main Heading */}
+                            <h2 id="promo-heading" className="text-4xl md:text-5xl lg:text-6xl font-black drop-shadow-2xl tracking-tight">
+                                <span className="bg-linear-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent">{t('home.getOff')}</span>
                             </h2>
-                            <p className="text-base lg:text-lg font-medium opacity-95">
-                                {t('home.firstOrder')}
+
+                            {/* Subheading */}
+                            <p className="text-lg md:text-xl font-semibold opacity-95 drop-shadow-md">
+                                {t('home.firstOrder')} 🎉
                             </p>
+
+                            {/* CTA Button */}
                             <button
-                                className="bg-white text-[#FF6B00] px-6 py-2 rounded-lg font-bold hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    scrollToRestaurants();
+                                }}
+                                className="mt-2 bg-white text-[#FF6B00] px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-extrabold hover:bg-yellow-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-white/50 text-sm md:text-base group/btn"
                                 aria-label="Order now and get 30% off your first order"
                             >
+                                <Zap size={18} className="text-[#FF6B00] group-hover/btn:animate-pulse" />
                                 <span>{t('home.orderNow')}</span>
-                                <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                                <ChevronRight size={18} className="transition-transform group-hover/btn:translate-x-1" aria-hidden="true" />
                             </button>
                         </div>
-                        <div className="text-7xl opacity-20 group-hover:scale-110 transition-transform duration-500 hidden md:block float" aria-hidden="true">
-                            🍔
+
+                        {/* SUPER VISIBLE Burger Emoji with Glow Effect */}
+                        <div className="relative flex items-center justify-center">
+                            {/* Glowing Background Circle */}
+                            <div className="absolute w-32 h-32 md:w-40 md:h-40 bg-yellow-400/40 rounded-full blur-2xl animate-pulse group-hover:bg-yellow-300/50 transition-all duration-500"></div>
+                            <div className="absolute w-24 h-24 md:w-32 md:h-32 bg-orange-300/50 rounded-full blur-xl animate-pulse delay-300"></div>
+
+                            {/* Main Burger Emoji */}
+                            <div className="relative text-7xl md:text-8xl lg:text-9xl transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 drop-shadow-2xl filter hover:drop-shadow-[0_0_30px_rgba(255,200,0,0.8)]" aria-hidden="true">
+                                🍔
+                            </div>
+
+                            {/* Sparkle Effects Around Burger */}
+                            <div className="absolute -top-2 -right-2 text-2xl animate-spin-slow">✨</div>
+                            <div className="absolute -bottom-1 -left-3 text-xl animate-bounce delay-500">⭐</div>
+                            <div className="absolute top-0 left-0 text-lg animate-ping delay-700 opacity-70">💫</div>
                         </div>
                     </div>
 
-                    {/* Decorative Elements */}
-                    <div className="absolute top-4 right-4 w-16 h-16 bg-white/10 rounded-full blur-2xl" aria-hidden="true"></div>
-                    <div className="absolute bottom-4 left-4 w-24 h-24 bg-white/5 rounded-full blur-3xl" aria-hidden="true"></div>
+                    {/* Bottom Gradient Fade */}
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-black/20 to-transparent"></div>
+
+                    {/* Click Indicator */}
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 text-white/70 text-xs font-medium animate-bounce">
+                        <span>Tap to explore</span>
+                        <ChevronRight size={14} className="rotate-90" />
+                    </div>
                 </section>
 
                 {/* Enhanced Cuisines Section */}
@@ -560,7 +624,7 @@ export default function Home() {
 
                 {/* All Restaurants */}
                 {filteredRestaurants.length > 0 ? (
-                    <section className="fade-in" aria-labelledby="all-restaurants-heading">
+                    <section ref={allRestaurantsRef} className="fade-in scroll-mt-24" aria-labelledby="all-restaurants-heading">
                         <h2 id="all-restaurants-heading" className="text-2xl font-bold text-[#212529] mb-4 flex items-center gap-2">
                             <span className="text-xl" aria-hidden="true">🍽️</span>
                             {!settings.iconOnlyMode && (searchQuery || selectedCuisine ? t('home.searchResults') : t('home.allRestaurants'))}

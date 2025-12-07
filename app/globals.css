@@ -153,6 +153,19 @@ body {
   }
 }
 
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
 @keyframes skeleton-loading {
   0% {
     background-position: -200% 0;
@@ -696,8 +709,8 @@ html.tritanopia::after {
 
 .large-button-mode button svg,
 .large-button-mode a svg {
-    width: 28px !important;
-    height: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
 }
 
 /* Reading Mode */
@@ -709,15 +722,15 @@ html.tritanopia::after {
 }
 
 .reading-mode body {
-    background-color: #fdf6e3 !important;
+  background-color: #fdf6e3 !important;
 }
 
-.reading-mode p, 
-.reading-mode h1, 
-.reading-mode h2, 
-.reading-mode h3, 
-.reading-mode h4, 
-.reading-mode h5, 
+.reading-mode p,
+.reading-mode h1,
+.reading-mode h2,
+.reading-mode h3,
+.reading-mode h4,
+.reading-mode h5,
 .reading-mode h6,
 .reading-mode span,
 .reading-mode li {
@@ -729,13 +742,13 @@ html.tritanopia::after {
 .reading-mode .bg-white,
 .reading-mode .bg-gray-50,
 .reading-mode .bg-gray-100 {
-    background-color: #eee8d5 !important;
-    border-color: #d3cbb8 !important;
+  background-color: #eee8d5 !important;
+  border-color: #d3cbb8 !important;
 }
 
 .reading-mode .text-gray-500,
 .reading-mode .text-gray-600,
 .reading-mode .text-gray-700,
 .reading-mode .text-gray-900 {
-    color: #2b2b2b !important;
+  color: #2b2b2b !important;
 }

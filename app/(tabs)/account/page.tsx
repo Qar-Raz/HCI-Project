@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
@@ -32,6 +32,7 @@ export default function AccountPage() {
     const router = useRouter();
     const { user: clerkUser } = useUser();
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const userButtonRef = useRef<HTMLDivElement>(null);
 
     const accountLinks = [
         {
@@ -225,7 +226,7 @@ export default function AccountPage() {
                         </Card>
                     </div>
                 </SignedOut>
-                
+
                 <SignedIn>
                     {/* Premium Profile Card */}
                     <div className="relative group">
@@ -285,12 +286,16 @@ export default function AccountPage() {
                                         <button
                                             className="flex-1 px-6 py-3 bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] hover:from-[#FF8C3A] hover:to-[#FF6B00] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
                                             aria-label="Edit your profile"
-                                            onClick={() => router.push('/user-profile')}
+                                            onClick={() => {
+                                                // Find and click the UserButton to open its dropdown
+                                                const userButtonTrigger = userButtonRef.current?.querySelector('button');
+                                                userButtonTrigger?.click();
+                                            }}
                                         >
                                             <Settings size={18} />
                                             Edit Profile
                                         </button>
-                                        <div className="flex items-center justify-center">
+                                        <div ref={userButtonRef} className="flex items-center justify-center">
                                             <UserButton afterSignOutUrl="/" />
                                         </div>
                                     </div>

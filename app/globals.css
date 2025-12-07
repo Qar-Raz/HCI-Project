@@ -680,6 +680,63 @@ html.tritanopia::after {
   transition: transform 0.2s ease;
 }
 
+/* ========================================
+   FOCUS INDICATOR ACCESSIBILITY SETTING
+   ======================================== */
+
+/* By default, remove visible focus outlines (only show when accessibility setting is enabled) */
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[role="button"]:focus,
+[tabindex]:focus {
+  outline: none;
+}
+
+/* When focus indicator is enabled, show visible focus rings */
+.focus-indicator button:focus,
+.focus-indicator a:focus,
+.focus-indicator input:focus,
+.focus-indicator select:focus,
+.focus-indicator textarea:focus,
+.focus-indicator [role="button"]:focus,
+.focus-indicator [tabindex]:focus {
+  outline: 3px solid #ff6b00 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.25) !important;
+}
+
+/* Focus visible fallback for keyboard navigation (even without setting) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #ff6b00;
+  outline-offset: 2px;
+}
+
+/* Enhanced focus for focus-indicator mode with focus-visible */
+.focus-indicator button:focus-visible,
+.focus-indicator a:focus-visible,
+.focus-indicator input:focus-visible,
+.focus-indicator select:focus-visible,
+.focus-indicator textarea:focus-visible,
+.focus-indicator [role="button"]:focus-visible,
+.focus-indicator [tabindex]:focus-visible {
+  outline: 4px solid #ff6b00 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(255, 107, 0, 0.3) !important;
+}
+
+/* ========================================
+   END FOCUS INDICATOR
+   ======================================== */
+
 /* High visibility focus for all accessibility modes */
 .large-text-mode :focus,
 .simplified-navigation :focus,

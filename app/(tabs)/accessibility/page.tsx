@@ -84,6 +84,15 @@ const keywordMap: Record<string, string> = {
     'colorblind': 'colorBlindMode',
     'color blind mode': 'colorBlindMode',
     'color vision': 'colorBlindMode',
+
+    // Focus Indicator
+    'focus indicator': 'focusIndicator',
+    'focus': 'focusIndicator',
+    'focus ring': 'focusIndicator',
+    'focus border': 'focusIndicator',
+    'button border': 'focusIndicator',
+    'click indicator': 'focusIndicator',
+    'visible focus': 'focusIndicator',
 };
 
 // Section keyword map for navigation
@@ -659,7 +668,7 @@ export default function AccessibilityPage() {
                 sectionId = 'seniors-section';
             } else if (foundKey === 'readingMode' || foundKey === 'reducedMotion') {
                 sectionId = 'disability-section';
-            } else if (foundKey === 'textSpacing' || foundKey === 'readableFont' || foundKey === 'linkHighlight') {
+            } else if (foundKey === 'textSpacing' || foundKey === 'readableFont' || foundKey === 'linkHighlight' || foundKey === 'focusIndicator') {
                 sectionId = 'visual-section';
             }
 
@@ -840,6 +849,13 @@ export default function AccessibilityPage() {
     ];
 
     const toggleSettings = [
+        {
+            key: 'focusIndicator' as const,
+            icon: Focus,
+            label: t('accessibility.focusIndicator'),
+            description: t('accessibility.focusIndicatorDesc'),
+            category: t('accessibility.categoryNavigation'),
+        },
         {
             key: 'textSpacing' as const,
             icon: AlignLeft,

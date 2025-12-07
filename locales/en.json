@@ -43,6 +43,8 @@
     "readableFontDesc": "Use a more readable font designed for people with dyslexia",
     "linkHighlight": "Link Underlines",
     "linkHighlightDesc": "Underline all clickable links for better identification",
+    "focusIndicator": "Focus Indicator",
+    "focusIndicatorDesc": "Show visible border around buttons and links when clicked or focused",
     "urduMode": "Urdu Mode",
     "urduModeDesc": "Switch the application language to Urdu for easier understanding.",
     "categoryReading": "Reading",

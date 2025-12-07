@@ -19,6 +19,8 @@ interface AccessibilitySettings {
     // Illiterate settings
     audioAssistance: boolean;
     pictorialMenu: boolean;
+    // Focus indicator (shows visible focus ring on buttons)
+    focusIndicator: boolean;
 }
 
 interface AccessibilityContextType {
@@ -47,6 +49,8 @@ const defaultSettings: AccessibilitySettings = {
     // Illiterate settings
     audioAssistance: false,
     pictorialMenu: false,
+    // Focus indicator - off by default
+    focusIndicator: false,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -190,6 +194,13 @@ function applyAccessibilitySettings(settings: AccessibilitySettings) {
         root.classList.add('pictorial-menu');
     } else {
         root.classList.remove('pictorial-menu');
+    }
+
+    // Focus indicator - shows visible focus ring on interactive elements
+    if (settings.focusIndicator) {
+        root.classList.add('focus-indicator');
+    } else {
+        root.classList.remove('focus-indicator');
     }
 
 }

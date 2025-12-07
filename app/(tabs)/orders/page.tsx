@@ -5,6 +5,7 @@ import { useAuth } from '@clerk/nextjs';
 import { Package, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, MapPin, Phone, Receipt, RotateCcw, MessageCircle, Star } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import BottomNav from '@/components/layout/BottomNav';
+import SpeakButton from '@/components/ui/SpeakButton';
 import { useAccessibility } from '@/lib/accessibility-context';
 
 type OrderStatus = 'delivered' | 'in-progress' | 'cancelled' | 'pending';
@@ -38,7 +39,7 @@ export default function OrdersPage() {
             try {
                 // Simulate loading delay
                 await new Promise(resolve => setTimeout(resolve, 500));
-                
+
                 const storageKey = userId ? `foodhub_orders_${userId}` : 'foodhub_orders_guest';
                 const storedOrders = localStorage.getItem(storageKey);
                 if (storedOrders) {
@@ -76,8 +77,8 @@ export default function OrdersPage() {
         fetchOrders();
     }, [userId]);
 
-    const filteredOrders = filterStatus === 'all' 
-        ? orders 
+    const filteredOrders = filterStatus === 'all'
+        ? orders
         : orders.filter(order => order.status === filterStatus);
 
 
@@ -132,13 +133,13 @@ export default function OrdersPage() {
                 const storedOrders = localStorage.getItem(storageKey);
                 if (storedOrders) {
                     const allOrders = JSON.parse(storedOrders);
-                    const updatedOrders = allOrders.map((o: any) => 
+                    const updatedOrders = allOrders.map((o: any) =>
                         o.id === orderId ? { ...o, status: 'cancelled' } : o
                     );
                     localStorage.setItem(storageKey, JSON.stringify(updatedOrders));
-                    
+
                     // Update local state
-                    setOrders(prev => prev.map(o => 
+                    setOrders(prev => prev.map(o =>
                         o.id === orderId ? { ...o, status: 'cancelled' } : o
                     ));
                 }
@@ -163,8 +164,18 @@ export default function OrdersPage() {
                 role="banner"
             >
                 <div className="max-w-screen-xl mx-auto px-4 py-5">
-                    <h1 className="text-2xl font-bold text-[#212529]">My Orders</h1>
-                    <p className="text-sm text-[#6C757D] mt-1">Track and manage your food orders</p>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-[#212529]">My Orders</h1>
+                            <p className="text-sm text-[#6C757D] mt-1">Track and manage your food orders</p>
+                        </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`My Orders page. You have ${orders.length} total orders. ${orders.filter(o => o.status === 'pending').length} pending, ${orders.filter(o => o.status === 'in-progress').length} in progress, ${orders.filter(o => o.status === 'delivered').length} delivered, and ${orders.filter(o => o.status === 'cancelled').length} cancelled.`}
+                                size="md"
+                            />
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -184,8 +195,8 @@ export default function OrdersPage() {
                                 aria-selected={filterStatus === filter.value}
                                 aria-controls={`orders-panel-${filter.value}`}
                                 className={`px-4 py-3 rounded-lg font-medium text-sm transition-all ${filterStatus === filter.value
-                                        ? 'bg-[#FF6B00] text-white shadow-md'
-                                        : 'bg-gray-50 text-[#6C757D] hover:bg-gray-100'
+                                    ? 'bg-[#FF6B00] text-white shadow-md'
+                                    : 'bg-gray-50 text-[#6C757D] hover:bg-gray-100'
                                     } ${settings.focusIndicator ? 'focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2' : ''}`}
                             >
                                 <span className="block">{filter.label}</span>
@@ -210,11 +221,21 @@ export default function OrdersPage() {
                         <h2 className="text-2xl font-bold text-[#212529] mb-2">
                             {filterStatus === 'all' ? 'No orders yet' : `No ${getStatusText(filterStatus as OrderStatus).toLowerCase()} orders`}
                         </h2>
-                        <p className="text-[#6C757D]">
+                        <p className="text-[#6C757D] mb-4">
                             {filterStatus === 'all'
                                 ? 'Your order history will appear here'
                                 : 'Try changing the filter to see other orders'}
                         </p>
+                        {settings.audioAssistance && (
+                            <div className="flex justify-center">
+                                <SpeakButton
+                                    text={filterStatus === 'all'
+                                        ? 'No orders yet. Your order history will appear here once you place an order.'
+                                        : `No ${getStatusText(filterStatus as OrderStatus).toLowerCase()} orders found. Try changing the filter to see other orders.`}
+                                    size="md"
+                                />
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div
@@ -234,9 +255,17 @@ export default function OrdersPage() {
                                     <div className="p-5">
                                         <div className="flex items-start justify-between mb-4">
                                             <div className="flex-1 min-w-0 mr-4">
-                                                <h3 className="font-bold text-[#212529] text-lg mb-1">
-                                                    {order.restaurant}
-                                                </h3>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <h3 className="font-bold text-[#212529] text-lg">
+                                                        {order.restaurant}
+                                                    </h3>
+                                                    {settings.audioAssistance && (
+                                                        <SpeakButton
+                                                            text={`Order from ${order.restaurant}. Status: ${getStatusText(order.status)}. ${order.items.length} items totaling ${order.total} rupees. Ordered on ${order.date} at ${order.time}. Items: ${order.items.map(item => `${item.quantity} ${item.name}`).join(', ')}.`}
+                                                            size="sm"
+                                                        />
+                                                    )}
+                                                </div>
                                                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[#6C757D]">
                                                     <time dateTime={`${order.date} ${order.time}`}>
                                                         {order.date} • {order.time}
@@ -256,7 +285,7 @@ export default function OrdersPage() {
                                                     {getStatusIcon(order.status)}
                                                     <span className="whitespace-nowrap">{getStatusText(order.status)}</span>
                                                 </div>
-                                                
+
                                                 {/* Cancel Button for Pending Orders */}
                                                 {order.status === 'pending' && (
                                                     <button
@@ -280,8 +309,8 @@ export default function OrdersPage() {
                                                 <div className="flex items-center justify-between text-xs text-orange-700 mb-2 font-medium">
                                                     <span className="flex items-center gap-1.5">
                                                         <span className="relative flex h-2 w-2">
-                                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                                          <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                                                         </span>
                                                         Restaurant is reviewing your order...
                                                     </span>
@@ -354,10 +383,18 @@ export default function OrdersPage() {
                                             {/* Tracking Progress (only for in-progress orders) */}
                                             {order.status === 'in-progress' && order.trackingSteps && (
                                                 <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                                    <h4 className="font-semibold text-[#212529] mb-4 flex items-center gap-2">
-                                                        <Clock size={18} className="text-[#FF6B00]" aria-hidden="true" />
-                                                        Order Tracking
-                                                    </h4>
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="font-semibold text-[#212529] flex items-center gap-2">
+                                                            <Clock size={18} className="text-[#FF6B00]" aria-hidden="true" />
+                                                            Order Tracking
+                                                        </h4>
+                                                        {settings.audioAssistance && (
+                                                            <SpeakButton
+                                                                text={`Order tracking: ${order.trackingSteps.filter(s => s.completed).map(s => s.label).join(', ')} completed. ${order.trackingSteps.filter(s => !s.completed).length > 0 ? `Next steps: ${order.trackingSteps.filter(s => !s.completed).map(s => s.label).join(', ')}.` : 'All steps completed.'}`}
+                                                                size="sm"
+                                                            />
+                                                        )}
+                                                    </div>
                                                     <ol className="space-y-3" aria-label="Order tracking steps">
                                                         {order.trackingSteps.map((step, index) => (
                                                             <li key={index} className="flex items-start gap-3">
@@ -384,10 +421,18 @@ export default function OrdersPage() {
                                             {/* Delivery Address */}
                                             {order.deliveryAddress && (
                                                 <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                                    <h4 className="font-semibold text-[#212529] mb-2 flex items-center gap-2">
-                                                        <MapPin size={18} className="text-[#FF6B00]" aria-hidden="true" />
-                                                        Delivery Address
-                                                    </h4>
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <h4 className="font-semibold text-[#212529] flex items-center gap-2">
+                                                            <MapPin size={18} className="text-[#FF6B00]" aria-hidden="true" />
+                                                            Delivery Address
+                                                        </h4>
+                                                        {settings.audioAssistance && (
+                                                            <SpeakButton
+                                                                text={`Delivery address: ${order.deliveryAddress}`}
+                                                                size="sm"
+                                                            />
+                                                        )}
+                                                    </div>
                                                     <address className="text-sm text-[#6C757D] not-italic">
                                                         {order.deliveryAddress}
                                                     </address>
@@ -396,7 +441,15 @@ export default function OrdersPage() {
 
                                             {/* Restaurant Info */}
                                             <div className="bg-white rounded-lg p-4 border border-gray-200">
-                                                <h4 className="font-semibold text-[#212529] mb-3">Restaurant Information</h4>
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <h4 className="font-semibold text-[#212529]">Restaurant Information</h4>
+                                                    {settings.audioAssistance && (
+                                                        <SpeakButton
+                                                            text={`Restaurant: ${order.restaurant}. ${order.restaurantAddress ? `Address: ${order.restaurantAddress}.` : ''} ${order.restaurantPhone ? `Phone: ${order.restaurantPhone}` : ''}`}
+                                                            size="sm"
+                                                        />
+                                                    )}
+                                                </div>
                                                 <div className="space-y-2 text-sm">
                                                     {order.restaurantAddress && (
                                                         <div className="flex items-start gap-2">

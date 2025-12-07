@@ -466,7 +466,7 @@ export default function Home() {
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-black/20 to-transparent"></div>
 
                     {/* Click Indicator */}
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 text-white/70 text-xs font-medium animate-bounce">
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:opacity-100 opacity-0 text-white/70 text-xs font-medium animate-bounce">
                         <span>Tap to explore</span>
                         <ChevronRight size={14} className="rotate-90" />
                     </div>

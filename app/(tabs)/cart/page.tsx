@@ -150,7 +150,8 @@ export default function CartPage() {
         : 0;
     const total = subtotal + deliveryFee - discount;
 
-    if (cart.items.length === 0) {
+    // Show empty cart view only if cart is empty AND there's no item pending undo
+    if (cart.items.length === 0 && !deletedItem) {
         return (
             <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4">
                 <div className="text-center">

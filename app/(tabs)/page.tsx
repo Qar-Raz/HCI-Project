@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Search, X, TrendingUp, Sparkles, ChevronRight, Mic } from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Search, X, TrendingUp, Sparkles, ChevronRight, Mic, Star, Clock, Zap } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import RestaurantCard from '@/components/shared/RestaurantCard';
 import SpeakButton from '@/components/ui/SpeakButton';
@@ -270,8 +271,8 @@ export default function Home() {
                             <button
                                 onClick={isListening ? stopVoiceSearch : startVoiceSearch}
                                 className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 ${isListening
-                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse'
-                                        : 'bg-gray-100 text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white'
+                                    ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse'
+                                    : 'bg-gray-100 text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white'
                                     }`}
                                 aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
                                 title={isListening ? 'Stop voice search' : 'Start voice search'}

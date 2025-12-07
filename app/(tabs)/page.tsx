@@ -486,9 +486,17 @@ export default function Home() {
                         aria-label="Cuisine categories"
                     >
                         {cuisineCategories.map((cuisine, index) => (
-                            <button
+                            <div
                                 key={cuisine.id}
                                 onClick={() => handleCuisineClick(cuisine.name)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleCuisineClick(cuisine.name);
+                                    }
+                                }}
+                                role="button"
+                                tabIndex={0}
                                 className={`relative flex-shrink-0 flex flex-col items-center gap-2 cursor-pointer group snap-start transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#FF6B00] focus:ring-offset-2 rounded-2xl p-2`}
                                 style={{ animationDelay: `${index * 50}ms` }}
                                 aria-pressed={selectedCuisine === cuisine.name}
@@ -531,7 +539,7 @@ export default function Home() {
                                         {cuisine.name}
                                     </span>
                                 )}
-                            </button>
+                            </div>
                         ))}
                     </div>
                 </section>

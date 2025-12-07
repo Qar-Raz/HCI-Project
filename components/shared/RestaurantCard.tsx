@@ -50,7 +50,7 @@ export default function RestaurantCard({ restaurant, pictorialMode = false }: Re
 
                     {/* Rating Badge */}
                     {restaurant.rating >= 4.5 && !restaurant.isClosed && !pictorialMode && (
-                        <div className="absolute top-12 right-3 bg-white/95 backdrop-blur-sm text-[#212529] text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-md flex items-center gap-1">
+                        <div className={`absolute ${settings.audioAssistance ? 'top-12' : 'top-3'} right-3 bg-white/95 backdrop-blur-sm text-[#212529] text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-md flex items-center gap-1`}>
                             <Star size={12} className="fill-[#FFC107] text-[#FFC107]" />
                             {restaurant.rating}
                         </div>

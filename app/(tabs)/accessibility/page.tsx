@@ -10,6 +10,7 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, useToast } from '@/components/ui/Toast';
+import SpeakButton from '@/components/ui/SpeakButton';
 
 const keywordMap: Record<string, string> = {
     'high contrast': 'highContrast',
@@ -52,12 +53,12 @@ export default function AccessibilityPage() {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utteranceRef.current = utterance; // Prevent garbage collection
-            
+
             utterance.onend = () => {
                 if (onEnd) onEnd();
                 utteranceRef.current = null;
             };
-            
+
             utterance.onerror = (e) => {
                 // Ignore errors caused by cancellation
                 if (e.error !== 'canceled' && e.error !== 'interrupted') {
@@ -129,12 +130,12 @@ export default function AccessibilityPage() {
             setIsListening(false);
             // Auto-restart if session is active and we are not speaking
             if (sessionActive && !window.speechSynthesis.speaking) {
-                 // Small delay to prevent rapid loops
-                 setTimeout(() => {
-                     if (sessionActive && !recognitionRef.current?.started) {
-                         startListening();
-                     }
-                 }, 300);
+                // Small delay to prevent rapid loops
+                setTimeout(() => {
+                    if (sessionActive && !recognitionRef.current?.started) {
+                        startListening();
+                    }
+                }, 300);
             }
         };
 
@@ -174,7 +175,7 @@ export default function AccessibilityPage() {
         if (suggestedSetting === 'colorBlindMode') {
             const modes = ['protanopia', 'deuteranopia', 'tritanopia', 'none'];
             const selectedMode = modes.find(m => command.includes(m));
-            
+
             if (selectedMode) {
                 updateSetting('colorBlindMode', selectedMode as any);
                 const msg = `Color Blind Mode set to ${selectedMode}.`;
@@ -194,10 +195,10 @@ export default function AccessibilityPage() {
             if (suggestedSetting) {
                 // Special handling for non-boolean settings that were waiting for input
                 if (suggestedSetting === 'colorBlindMode') {
-                     const msg = "Please say which mode: Protanopia, Deuteranopia, Tritanopia, or None.";
-                     speak(msg);
-                     setVoiceFeedback("Say: Protanopia, Deuteranopia, Tritanopia, or None");
-                     return;
+                    const msg = "Please say which mode: Protanopia, Deuteranopia, Tritanopia, or None.";
+                    speak(msg);
+                    setVoiceFeedback("Say: Protanopia, Deuteranopia, Tritanopia, or None");
+                    return;
                 }
 
                 const currentVal = settings[suggestedSetting as keyof typeof settings];
@@ -206,15 +207,15 @@ export default function AccessibilityPage() {
                     updateSetting(suggestedSetting as any, !currentVal);
                     const status = !currentVal ? 'enabled' : 'disabled';
                     const msg = `${suggestedSetting.replace(/([A-Z])/g, ' $1')} has been ${status}.`;
-                    
+
                     speak(msg);
                     addToast(msg, 'success');
                     setVoiceFeedback(msg);
                     setSuggestedSetting(null);
                 } else {
-                     const msg = `I cannot toggle ${suggestedSetting} directly. Please use the manual controls.`;
-                     speak(msg);
-                     addToast(msg, 'error');
+                    const msg = `I cannot toggle ${suggestedSetting} directly. Please use the manual controls.`;
+                    speak(msg);
+                    addToast(msg, 'error');
                 }
             } else {
                 const msg = "I don't have a setting selected to toggle. Please say a setting name first.";
@@ -237,13 +238,13 @@ export default function AccessibilityPage() {
             setSuggestedSetting(foundKey);
             const settingName = foundKey.replace(/([A-Z])/g, ' $1'); // CamelCase to Space
             const currentVal = settings[foundKey as keyof typeof settings];
-            
+
             // Special handling for Color Blind Mode
             if (foundKey === 'colorBlindMode') {
                 const response = `I found Color Blind Mode. It is currently ${currentVal}. You can say Protanopia, Deuteranopia, Tritanopia, or None to change it.`;
                 setVoiceFeedback(response);
                 addToast(`Found ${settingName}. Say a mode to change.`, 'info');
-                
+
                 if (recognitionRef.current) recognitionRef.current.stop();
                 speak(response, () => {
                     setVoiceFeedback("Listening for mode...");
@@ -258,11 +259,11 @@ export default function AccessibilityPage() {
             } else {
                 status = `set to ${currentVal}`;
             }
-            
+
             const response = `I found ${settingName}. It is currently ${status}. Say "Yes" or "Toggle" to change it.`;
             setVoiceFeedback(response);
             addToast(`Found ${settingName}. Say "Yes" to change.`, 'info');
-            
+
             // Stop listening while speaking to avoid picking up system voice
             if (recognitionRef.current) {
                 recognitionRef.current.stop();
@@ -375,7 +376,7 @@ export default function AccessibilityPage() {
             description: t('accessibility.readingModeDesc'),
             color: 'bg-rose-100 text-rose-600',
         },
-       
+
         {
             key: 'colorBlindMode' as const,
             icon: Eye,
@@ -478,11 +479,10 @@ export default function AccessibilityPage() {
                         {/* Voice Assistant Button */}
                         <button
                             onClick={toggleVoiceAssistant}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
-                                sessionActive 
-                                    ? 'bg-red-500 text-white hover:bg-red-600' 
-                                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                            }`}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${sessionActive
+                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                                }`}
                             aria-label={sessionActive ? "Stop Voice Assistant" : "Start Voice Assistant"}
                             title={sessionActive ? "Stop Voice Assistant" : "Start Voice Assistant"}
                         >
@@ -498,9 +498,8 @@ export default function AccessibilityPage() {
 
             {/* Voice Feedback Banner */}
             {(voiceFeedback || sessionActive) && (
-                <div className={`px-4 py-3 text-center font-medium transition-colors ${
-                    isListening ? 'bg-blue-600 text-white' : 'bg-gray-800 text-white'
-                }`}>
+                <div className={`px-4 py-3 text-center font-medium transition-colors ${isListening ? 'bg-blue-600 text-white' : 'bg-gray-800 text-white'
+                    }`}>
                     {voiceFeedback || "Voice Assistant Active"}
                 </div>
             )}
@@ -525,6 +524,12 @@ export default function AccessibilityPage() {
                             <h3 className="text-xl font-bold text-gray-900">{t('accessibility.language')}</h3>
                             <p className="text-sm text-gray-500">{t('accessibility.chooseLanguage')}</p>
                         </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Language section. Choose your preferred language. Currently set to ${language === 'en' ? 'English' : 'Urdu'}.`}
+                                size="sm"
+                            />
+                        )}
                     </div>
                     <div className="relative" ref={dropdownRef}>
                         <button
@@ -580,6 +585,168 @@ export default function AccessibilityPage() {
                     </div>
                 </section>
 
+                {/* Illiterate Section - Moved to top for priority */}
+                <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <BookOpen className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-xl font-bold text-gray-900">{t('accessibility.illiterate')}</h3>
+                            <p className="text-sm text-gray-500">{t('accessibility.illiterateDesc')}</p>
+                        </div>
+                        <SpeakButton
+                            text={`Illiterate users section. Settings for users who cannot read including audio assistance and pictorial menu.`}
+                            size="sm"
+                        />
+                    </div>
+                    <div className="grid gap-4">
+                        {illiterateSettings.map((setting) => {
+                            const Icon = setting.icon;
+                            const isEnabled = settings[setting.key];
+
+                            if (setting.key === 'audioAssistance') {
+                                return (
+                                    <div
+                                        key={setting.key}
+                                        className={`relative overflow-hidden rounded-2xl border-2 transition-all ${isEnabled
+                                            ? 'border-[#FF6B00] bg-linear-to-br from-[#FF6B00]/10 to-orange-50 shadow-lg'
+                                            : 'border-gray-200 bg-linear-to-br from-white to-gray-50'
+                                            }`}
+                                    >
+                                        {/* Prominent Visual Indicator - Large Speaker Icon for Affordance */}
+                                        <div className="p-6">
+                                            <div className="flex flex-col items-center text-center mb-4">
+                                                {/* Large animated speaker icon - visual affordance for illiterate users */}
+                                                <button
+                                                    onClick={() => {
+                                                        if (isEnabled) {
+                                                            window.speechSynthesis.cancel();
+                                                            updateSetting(setting.key, false);
+                                                        } else {
+                                                            speak('Audio assistance is now active. You will see speaker icons on all items. Tap the speaker icon to hear the name of any item.');
+                                                            updateSetting(setting.key, true);
+                                                        }
+                                                    }}
+                                                    className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl mb-4 ${isEnabled
+                                                        ? 'bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] animate-pulse ring-4 ring-[#FF6B00]/30'
+                                                        : 'bg-linear-to-br from-gray-100 to-gray-200 hover:from-[#FF6B00]/20 hover:to-[#FF8C3A]/20 hover:scale-110'
+                                                        }`}
+                                                    aria-label={isEnabled ? 'Turn off audio assistance' : 'Turn on audio assistance'}
+                                                >
+                                                    <Volume2 className={`w-12 h-12 ${isEnabled ? 'text-white' : 'text-gray-500'}`} />
+                                                </button>
+
+                                                {/* Visual indicator waves when active */}
+                                                {isEnabled && (
+                                                    <div className="flex items-center gap-1 mb-2">
+                                                        <div className="w-1 h-3 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                        <div className="w-1 h-5 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                        <div className="w-1 h-4 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                                        <div className="w-1 h-6 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '450ms' }}></div>
+                                                        <div className="w-1 h-3 bg-[#FF6B00] rounded-full animate-bounce" style={{ animationDelay: '600ms' }}></div>
+                                                    </div>
+                                                )}
+
+                                                <h4 className="font-bold text-gray-900 text-lg mb-1">{setting.label}</h4>
+                                                <p className="text-sm text-gray-600 max-w-xs">{setting.description}</p>
+                                            </div>
+
+                                            {/* Status indicator with clear visual feedback */}
+                                            <div className={`flex items-center justify-center gap-3 py-3 px-4 rounded-xl transition-all ${isEnabled
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                <div className={`w-3 h-3 rounded-full ${isEnabled ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                                                <span className="font-semibold text-sm">
+                                                    {isEnabled ? '🔊 Active - Tap speaker icons to hear names' : '🔇 Tap the big speaker to start'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Decorative sound waves in background when active */}
+                                        {isEnabled && (
+                                            <div className="absolute -right-8 -bottom-8 w-32 h-32 opacity-10">
+                                                <div className="absolute inset-0 border-4 border-[#FF6B00] rounded-full animate-ping"></div>
+                                                <div className="absolute inset-4 border-4 border-[#FF6B00] rounded-full animate-ping" style={{ animationDelay: '300ms' }}></div>
+                                                <div className="absolute inset-8 border-4 border-[#FF6B00] rounded-full animate-ping" style={{ animationDelay: '600ms' }}></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div
+                                    key={setting.key}
+                                    className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50"
+                                >
+                                    <div className="flex items-center gap-4 flex-1">
+                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${setting.color}`}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
+                                                {settings.audioAssistance && (
+                                                    <SpeakButton
+                                                        text={`${setting.label}. ${setting.description}. Currently ${isEnabled ? 'enabled' : 'disabled'}.`}
+                                                        size="sm"
+                                                    />
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-gray-600">{setting.description}</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => updateSetting(setting.key, !isEnabled)}
+                                        className={`relative w-14 h-8 rounded-full transition-colors duration-200 ease-in-out shrink-0 ml-4 ${isEnabled ? 'bg-[#FF6B00]' : 'bg-gray-300'
+                                            }`}
+                                        aria-label={`Toggle ${setting.label}`}
+                                        aria-checked={isEnabled ? 'true' : 'false'}
+                                        role="switch"
+                                    >
+                                        <div
+                                            className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-md ${isEnabled ? 'translate-x-7 left-0.5' : 'translate-x-0 left-0.5'
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
+                            );
+                        })}
+
+                        {/* Urdu Mode Toggle */}
+                        <div className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50">
+                            <div className="flex items-center gap-4 flex-1">
+                                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-purple-100 text-purple-600">
+                                    <Globe className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="font-semibold text-gray-900 mb-0.5">Urdu Mode</h4>
+                                        {settings.audioAssistance && (
+                                            <SpeakButton
+                                                text={`Urdu Mode. Switch language to Urdu. Currently ${language === 'ur' ? 'enabled' : 'disabled'}.`}
+                                                size="sm"
+                                            />
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-600">Switch language to Urdu</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => updateSetting('language', language === 'ur' ? 'en' : 'ur')}
+                                className={`relative w-14 h-8 rounded-full transition-colors duration-200 ease-in-out shrink-0 ml-4 ${language === 'ur' ? 'bg-[#FF6B00]' : 'bg-gray-300'}`}
+                                aria-label="Toggle Urdu Mode"
+                                aria-checked={language === 'ur' ? 'true' : 'false'}
+                                role="switch"
+                            >
+                                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-md ${language === 'ur' ? 'translate-x-7 left-0.5' : 'translate-x-0 left-0.5'}`} />
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Seniors Section */}
                 <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <div className="flex items-center gap-3 mb-6">
@@ -590,6 +757,12 @@ export default function AccessibilityPage() {
                             <h3 className="text-xl font-bold text-gray-900">{t('accessibility.seniors')}</h3>
                             <p className="text-sm text-gray-500">{t('accessibility.seniorsDesc')}</p>
                         </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Seniors section. Settings for elderly users including large text, large buttons, and high contrast.`}
+                                size="sm"
+                            />
+                        )}
                     </div>
                     <div className="grid gap-4">
                         {seniorsSettings.map((setting) => {
@@ -605,7 +778,15 @@ export default function AccessibilityPage() {
                                             <Icon className="w-5 h-5" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
+                                                {settings.audioAssistance && (
+                                                    <SpeakButton
+                                                        text={`${setting.label}. ${setting.description}. Currently ${isEnabled ? 'enabled' : 'disabled'}.`}
+                                                        size="sm"
+                                                    />
+                                                )}
+                                            </div>
                                             <p className="text-sm text-gray-600">{setting.description}</p>
                                         </div>
                                     </div>
@@ -638,11 +819,17 @@ export default function AccessibilityPage() {
                             <h3 className="text-xl font-bold text-gray-900">{t('accessibility.disabilities')}</h3>
                             <p className="text-sm text-gray-500">{t('accessibility.disabilitiesDesc')}</p>
                         </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Disability section. Settings for users with disabilities including reading mode, color blind mode, and reduced motion.`}
+                                size="sm"
+                            />
+                        )}
                     </div>
                     <div className="grid gap-4">
                         {disabilitySettings.map((setting) => {
                             const Icon = setting.icon;
-                            
+
                             if (setting.key === 'colorBlindMode') {
                                 return (
                                     <div
@@ -654,7 +841,15 @@ export default function AccessibilityPage() {
                                                 <Icon className="w-5 h-5" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
+                                                    {settings.audioAssistance && (
+                                                        <SpeakButton
+                                                            text={`${setting.label}. ${setting.description}. Currently set to ${settings.colorBlindMode}.`}
+                                                            size="sm"
+                                                        />
+                                                    )}
+                                                </div>
                                                 <p className="text-sm text-gray-600">{setting.description}</p>
                                             </div>
                                         </div>
@@ -665,17 +860,25 @@ export default function AccessibilityPage() {
                                                 { value: 'deuteranopia', label: 'Deuteranopia' },
                                                 { value: 'tritanopia', label: 'Tritanopia' },
                                             ].map((mode) => (
-                                                <button
-                                                    key={mode.value}
-                                                    onClick={() => updateSetting('colorBlindMode', mode.value as any)}
-                                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                        settings.colorBlindMode === mode.value
+                                                <div key={mode.value} className="relative">
+                                                    <button
+                                                        onClick={() => updateSetting('colorBlindMode', mode.value as any)}
+                                                        className={`w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors ${settings.colorBlindMode === mode.value
                                                             ? 'bg-[#FF6B00] text-white shadow-sm'
                                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                    }`}
-                                                >
-                                                    {mode.label}
-                                                </button>
+                                                            }`}
+                                                    >
+                                                        {mode.label}
+                                                    </button>
+                                                    {settings.audioAssistance && (
+                                                        <div className="absolute -top-1 -right-1">
+                                                            <SpeakButton
+                                                                text={`${mode.label} color blind mode. ${settings.colorBlindMode === mode.value ? 'Currently selected.' : 'Tap to select.'}`}
+                                                                size="sm"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             ))}
                                         </div>
                                     </div>
@@ -693,101 +896,15 @@ export default function AccessibilityPage() {
                                             <Icon className="w-5 h-5" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
-                                            <p className="text-sm text-gray-600">{setting.description}</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => updateSetting(setting.key, !isEnabled)}
-                                        className={`relative w-14 h-8 rounded-full transition-colors duration-200 ease-in-out shrink-0 ml-4 ${isEnabled ? 'bg-[#FF6B00]' : 'bg-gray-300'
-                                            }`}
-                                        aria-label={`Toggle ${setting.label}`}
-                                        aria-checked={isEnabled ? 'true' : 'false'}
-                                        role="switch"
-                                    >
-                                        <div
-                                            className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-md ${isEnabled ? 'translate-x-7 left-0.5' : 'translate-x-0 left-0.5'
-                                                }`}
-                                        />
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                {/* Illiterate Section */}
-                <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <BookOpen className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-900">{t('accessibility.illiterate')}</h3>
-                            <p className="text-sm text-gray-500">{t('accessibility.illiterateDesc')}</p>
-                        </div>
-                    </div>
-                    <div className="grid gap-4">
-                        {illiterateSettings.map((setting) => {
-                            const Icon = setting.icon;
-                            const isEnabled = settings[setting.key];
-
-                            if (setting.key === 'audioAssistance') {
-                                return (
-                                    <div
-                                        key={setting.key}
-                                        className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50"
-                                    >
-                                        <div className="flex items-center gap-4 flex-1">
-                                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${setting.color}`}>
-                                                <Icon className="w-5 h-5" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
                                                 <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
-                                                <p className="text-sm text-gray-600">{setting.description}</p>
+                                                {settings.audioAssistance && (
+                                                    <SpeakButton
+                                                        text={`${setting.label}. ${setting.description}. Currently ${isEnabled ? 'enabled' : 'disabled'}.`}
+                                                        size="sm"
+                                                    />
+                                                )}
                                             </div>
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                if (isEnabled) {
-                                                    // Stop
-                                                    window.speechSynthesis.cancel();
-                                                    updateSetting(setting.key, false);
-                                                } else {
-                                                    // Start
-                                                    const features = [
-                                                        ...seniorsSettings,
-                                                        ...disabilitySettings,
-                                                        ...illiterateSettings,
-                                                        ...toggleSettings
-                                                    ].map(s => `${s.label}: ${s.description}`).join('. ');
-                                                    speak(`Here are the available accessibility features. ${features}`);
-                                                    updateSetting(setting.key, true);
-                                                }
-                                            }}
-                                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                                isEnabled 
-                                                    ? 'bg-red-100 text-red-600 hover:bg-red-200' 
-                                                    : 'bg-green-100 text-green-600 hover:bg-green-200'
-                                            }`}
-                                        >
-                                            {isEnabled ? 'Stop' : 'Start'}
-                                        </button>
-                                    </div>
-                                );
-                            }
-
-                            return (
-                                <div
-                                    key={setting.key}
-                                    className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50"
-                                >
-                                    <div className="flex items-center gap-4 flex-1">
-                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${setting.color}`}>
-                                            <Icon className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-semibold text-gray-900 mb-0.5">{setting.label}</h4>
                                             <p className="text-sm text-gray-600">{setting.description}</p>
                                         </div>
                                     </div>
@@ -807,28 +924,6 @@ export default function AccessibilityPage() {
                                 </div>
                             );
                         })}
-
-                        {/* Urdu Mode Toggle */}
-                        <div className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 transition-all bg-linear-to-r from-white to-gray-50/50">
-                            <div className="flex items-center gap-4 flex-1">
-                                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-purple-100 text-purple-600">
-                                    <Globe className="w-5 h-5" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-gray-900 mb-0.5">Urdu Mode</h4>
-                                    <p className="text-sm text-gray-600">Switch language to Urdu</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => updateSetting('language', language === 'ur' ? 'en' : 'ur')}
-                                className={`relative w-14 h-8 rounded-full transition-colors duration-200 ease-in-out shrink-0 ml-4 ${language === 'ur' ? 'bg-[#FF6B00]' : 'bg-gray-300'}`}
-                                aria-label="Toggle Urdu Mode"
-                                aria-checked={language === 'ur' ? 'true' : 'false'}
-                                role="switch"
-                            >
-                                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-md ${language === 'ur' ? 'translate-x-7 left-0.5' : 'translate-x-0 left-0.5'}`} />
-                            </button>
-                        </div>
                     </div>
                 </section>
 
@@ -838,87 +933,119 @@ export default function AccessibilityPage() {
                         <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                             <Type className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900">{t('accessibility.textSize')}</h3>
                             <p className="text-sm text-gray-500">{t('accessibility.textSizeDesc')}</p>
                         </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Font Size section. Choose your preferred text size. Currently set to ${settings.fontSize}.`}
+                                size="sm"
+                            />
+                        )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         {fontSizeOptions.map((option) => (
-                            <button
-                                key={option.value}
-                                onClick={() => updateSetting('fontSize', option.value)}
-                                className={`p-5 rounded-xl border-2 transition-all ${settings.fontSize === option.value
-                                    ? 'border-[#FF6B00] bg-[#FF6B00]/5 shadow-md scale-[1.02]'
-                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                    }`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-semibold text-gray-900">{option.label}</span>
-                                    {settings.fontSize === option.value && (
-                                        <div className="w-6 h-6 bg-[#FF6B00] rounded-full flex items-center justify-center">
-                                            <Check className="w-4 h-4 text-white" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className={`${option.size} text-gray-600 mb-1`}>{t('accessibility.sampleText')}</div>
-                                <div className="text-xs text-gray-400">{option.description}</div>
-                            </button>
+                            <div key={option.value} className="relative">
+                                <button
+                                    onClick={() => updateSetting('fontSize', option.value)}
+                                    className={`w-full p-5 rounded-xl border-2 transition-all ${settings.fontSize === option.value
+                                        ? 'border-[#FF6B00] bg-[#FF6B00]/5 shadow-md scale-[1.02]'
+                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="font-semibold text-gray-900">{option.label}</span>
+                                        {settings.fontSize === option.value && (
+                                            <div className="w-6 h-6 bg-[#FF6B00] rounded-full flex items-center justify-center">
+                                                <Check className="w-4 h-4 text-white" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className={`${option.size} text-gray-600 mb-1`}>{t('accessibility.sampleText')}</div>
+                                    <div className="text-xs text-gray-400">{option.description}</div>
+                                </button>
+                                {settings.audioAssistance && (
+                                    <div className="absolute -top-2 -right-2">
+                                        <SpeakButton
+                                            text={`${option.label} font size, ${option.description}. ${settings.fontSize === option.value ? 'Currently selected.' : 'Tap to select.'}`}
+                                            size="sm"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </div>
                 </section>
 
                 {/* Visual Adjustments */}
                 <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <div className="mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{t('accessibility.visualAdjustments')}</h3>
-                        <p className="text-sm text-gray-500">{t('accessibility.visualAdjustmentsDesc')}</p>
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">{t('accessibility.visualAdjustments')}</h3>
+                            <p className="text-sm text-gray-500">{t('accessibility.visualAdjustmentsDesc')}</p>
+                        </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Visual Adjustments section. Settings for text spacing, readable fonts, and link highlighting.`}
+                                size="sm"
+                            />
+                        )}
                     </div>
                     <div className="space-y-3">
                         {toggleSettings.map((setting) => {
                             const Icon = setting.icon;
                             const isEnabled = settings[setting.key];
                             return (
-                                <button
-                                    key={setting.key}
-                                    onClick={() => updateSetting(setting.key, !isEnabled)}
-                                    className={`w-full p-5 rounded-xl border-2 transition-all text-left ${isEnabled
-                                        ? 'border-[#FF6B00] bg-[#FF6B00]/5 shadow-sm'
-                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex items-start gap-4 flex-1">
+                                <div key={setting.key} className="relative">
+                                    <button
+                                        onClick={() => updateSetting(setting.key, !isEnabled)}
+                                        className={`w-full p-5 rounded-xl border-2 transition-all text-left ${isEnabled
+                                            ? 'border-[#FF6B00] bg-[#FF6B00]/5 shadow-sm'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex items-start gap-4 flex-1">
+                                                <div
+                                                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isEnabled ? 'bg-[#FF6B00] shadow-lg' : 'bg-gray-100'
+                                                        }`}
+                                                >
+                                                    <Icon
+                                                        className={`w-6 h-6 ${isEnabled ? 'text-white' : 'text-gray-600'
+                                                            }`}
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="font-semibold text-gray-900">{setting.label}</h4>
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                                            {setting.category}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-600">{setting.description}</p>
+                                                </div>
+                                            </div>
                                             <div
-                                                className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isEnabled ? 'bg-[#FF6B00] shadow-lg' : 'bg-gray-100'
+                                                className={`relative w-14 h-7 rounded-full transition-colors shrink-0 ${isEnabled ? 'bg-[#FF6B00]' : 'bg-gray-300'
                                                     }`}
                                             >
-                                                <Icon
-                                                    className={`w-6 h-6 ${isEnabled ? 'text-white' : 'text-gray-600'
+                                                <div
+                                                    className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-md ${isEnabled ? 'translate-x-7' : 'translate-x-0'
                                                         }`}
                                                 />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <h4 className="font-semibold text-gray-900">{setting.label}</h4>
-                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
-                                                        {setting.category}
-                                                    </span>
-                                                </div>
-                                                <p className="text-sm text-gray-600">{setting.description}</p>
-                                            </div>
                                         </div>
-                                        <div
-                                            className={`relative w-14 h-7 rounded-full transition-colors shrink-0 ${isEnabled ? 'bg-[#FF6B00]' : 'bg-gray-300'
-                                                }`}
-                                        >
-                                            <div
-                                                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-md ${isEnabled ? 'translate-x-7' : 'translate-x-0'
-                                                    }`}
+                                    </button>
+                                    {settings.audioAssistance && (
+                                        <div className="absolute top-2 right-2">
+                                            <SpeakButton
+                                                text={`${setting.label}. ${setting.description}. Currently ${isEnabled ? 'enabled' : 'disabled'}.`}
+                                                size="sm"
                                             />
                                         </div>
-                                    </div>
-                                </button>
+                                    )}
+                                </div>
                             );
                         })}
                     </div>
@@ -930,42 +1057,57 @@ export default function AccessibilityPage() {
                         <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
                             <Eye className="w-5 h-5 text-purple-600" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900">{t('accessibility.colorVision')}</h3>
                             <p className="text-sm text-gray-500">{t('accessibility.colorVisionDesc')}</p>
                         </div>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Color Vision section. Adjust colors for color blindness. Currently set to ${settings.colorBlindMode}.`}
+                                size="sm"
+                            />
+                        )}
                     </div>
                     <div className="grid gap-3">
                         {colorBlindOptions.map((option) => {
                             const Icon = option.icon;
                             return (
-                                <button
-                                    key={option.value}
-                                    onClick={() => updateSetting('colorBlindMode', option.value)}
-                                    className={`w-full p-5 rounded-xl border-2 transition-all text-left ${settings.colorBlindMode === option.value
-                                        ? 'border-[#FF6B00] bg-[#FF6B00]/5 shadow-md'
-                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${settings.colorBlindMode === option.value ? 'bg-[#FF6B00]' : 'bg-gray-100'
-                                                }`}>
-                                                <Icon className={`w-6 h-6 ${settings.colorBlindMode === option.value ? 'text-white' : 'text-gray-600'
-                                                    }`} />
+                                <div key={option.value} className="relative">
+                                    <button
+                                        onClick={() => updateSetting('colorBlindMode', option.value)}
+                                        className={`w-full p-5 rounded-xl border-2 transition-all text-left ${settings.colorBlindMode === option.value
+                                            ? 'border-[#FF6B00] bg-[#FF6B00]/5 shadow-md'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${settings.colorBlindMode === option.value ? 'bg-[#FF6B00]' : 'bg-gray-100'
+                                                    }`}>
+                                                    <Icon className={`w-6 h-6 ${settings.colorBlindMode === option.value ? 'text-white' : 'text-gray-600'
+                                                        }`} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold text-gray-900 mb-0.5">{option.label}</h4>
+                                                    <p className="text-sm text-gray-500">{option.description}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-semibold text-gray-900 mb-0.5">{option.label}</h4>
-                                                <p className="text-sm text-gray-500">{option.description}</p>
-                                            </div>
+                                            {settings.colorBlindMode === option.value && (
+                                                <div className="w-7 h-7 bg-[#FF6B00] rounded-full flex items-center justify-center">
+                                                    <Check className="w-5 h-5 text-white" />
+                                                </div>
+                                            )}
                                         </div>
-                                        {settings.colorBlindMode === option.value && (
-                                            <div className="w-7 h-7 bg-[#FF6B00] rounded-full flex items-center justify-center">
-                                                <Check className="w-5 h-5 text-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                </button>
+                                    </button>
+                                    {settings.audioAssistance && (
+                                        <div className="absolute top-2 right-2">
+                                            <SpeakButton
+                                                text={`${option.label}. ${option.description}. ${settings.colorBlindMode === option.value ? 'Currently selected.' : 'Tap to select.'}`}
+                                                size="sm"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             );
                         })}
                     </div>
@@ -973,19 +1115,33 @@ export default function AccessibilityPage() {
 
                 {/* Accessibility Tips */}
                 <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('accessibility.features')}</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">{t('accessibility.features')}</h3>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Accessibility tips and features section.`}
+                                size="sm"
+                            />
+                        )}
+                    </div>
                     <div className="space-y-3">
                         {accessibilityTips.map((tip, index) => {
                             const Icon = tip.icon;
                             return (
-                                <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+                                <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl relative">
                                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-gray-200 shrink-0">
                                         <Icon className="w-5 h-5 text-gray-600" />
                                     </div>
-                                    <div>
+                                    <div className="flex-1">
                                         <h4 className="font-semibold text-gray-900 mb-1">{tip.title}</h4>
                                         <p className="text-sm text-gray-600">{tip.description}</p>
                                     </div>
+                                    {settings.audioAssistance && (
+                                        <SpeakButton
+                                            text={`${tip.title}. ${tip.description}`}
+                                            size="sm"
+                                        />
+                                    )}
                                 </div>
                             );
                         })}
@@ -994,7 +1150,15 @@ export default function AccessibilityPage() {
 
                 {/* Reset Section */}
                 <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('accessibility.resetSettings')}</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">{t('accessibility.resetSettings')}</h3>
+                        {settings.audioAssistance && (
+                            <SpeakButton
+                                text={`Reset Settings section. Tap to reset all accessibility settings to default.`}
+                                size="sm"
+                            />
+                        )}
+                    </div>
                     {showResetConfirm ? (
                         <div className="space-y-4">
                             <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { MapPin, Search, X, TrendingUp, Sparkles, ChevronRight, Mic } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import RestaurantCard from '@/components/shared/RestaurantCard';
+import SpeakButton from '@/components/ui/SpeakButton';
 import { restaurants, cuisineCategories } from '@/lib/data';
 import { useTranslation } from '@/lib/use-translation';
 import { useAccessibility } from '@/lib/accessibility-context';
@@ -268,11 +269,10 @@ export default function Home() {
                             />
                             <button
                                 onClick={isListening ? stopVoiceSearch : startVoiceSearch}
-                                className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 ${
-                                    isListening 
-                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse' 
+                                className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 ${isListening
+                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse'
                                         : 'bg-gray-100 text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white'
-                                }`}
+                                    }`}
                                 aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
                                 title={isListening ? 'Stop voice search' : 'Start voice search'}
                             >
@@ -358,10 +358,20 @@ export default function Home() {
             >
                 {/* Enhanced Promotional Banner */}
                 <section
-                    className="relative h-44 bg-linear-to-r from-[#FF6B00] via-[#FF7A1F] to-[#FF8C3A] rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-all duration-500"
+                    className="relative h-44 bg-linear-to-r from-[#FF6B00] via-[#FF7A1F] to-[#FF8C3A] rounded-2xl overflow-visible shadow-xl group hover:shadow-2xl transition-all duration-500"
                     aria-labelledby="promo-heading"
                     role="region"
                 >
+                    {/* Audio Assistance Speaker Button */}
+                    {settings.audioAssistance && (
+                        <div className="absolute top-2 right-2 z-40">
+                            <SpeakButton
+                                text="Special Offer! Get 30% off on your first order today! Tap Order Now to claim this discount."
+                                size="md"
+                            />
+                        </div>
+                    )}
+
                     {/* Animated Background Pattern */}
                     <div className="absolute inset-0 opacity-10">
                         <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMTAgMTBjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00eiIvPjwvZz48L2c+PC9zdmc+')] animate-pulse"></div>
@@ -414,11 +424,20 @@ export default function Home() {
                             <button
                                 key={cuisine.id}
                                 onClick={() => handleCuisineClick(cuisine.name)}
-                                className={`flex-shrink-0 flex flex-col items-center gap-2 cursor-pointer group snap-start transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#FF6B00] focus:ring-offset-2 rounded-2xl p-2`}
+                                className={`relative flex-shrink-0 flex flex-col items-center gap-2 cursor-pointer group snap-start transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#FF6B00] focus:ring-offset-2 rounded-2xl p-2`}
                                 style={{ animationDelay: `${index * 50}ms` }}
                                 aria-pressed={selectedCuisine === cuisine.name}
                                 aria-label={`${cuisine.name} cuisine. ${selectedCuisine === cuisine.name ? 'Currently selected' : 'Click to filter'}`}
                             >
+                                {/* Audio Assistance Speaker Button */}
+                                {settings.audioAssistance && (
+                                    <div className="absolute -top-1 -right-1 z-40">
+                                        <SpeakButton
+                                            text={`${cuisine.name} food category. Tap to see ${cuisine.name} restaurants.`}
+                                            size="sm"
+                                        />
+                                    </div>
+                                )}
                                 <div
                                     className={`relative w-20 h-20 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 ${selectedCuisine === cuisine.name
                                         ? 'bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] shadow-2xl'

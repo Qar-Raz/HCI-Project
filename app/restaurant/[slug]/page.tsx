@@ -7,14 +7,17 @@ import { ArrowLeft, Star, Plus, Heart, Info, Flame, CheckCircle, Search, Minus, 
 import ResetCartModal from '@/components/modals/ResetCartModal';
 import BottomNav from '@/components/layout/BottomNav';
 import { ToastContainer, ToastMessage } from '@/components/ui/Toast';
+import SpeakButton from '@/components/ui/SpeakButton';
 import { restaurants } from '@/lib/data';
 import { useCart } from '@/lib/cart-context';
+import { useAccessibility } from '@/lib/accessibility-context';
 import { FoodItem } from '@/lib/types';
 
 export default function RestaurantPage() {
     const params = useParams();
     const router = useRouter();
     const { addToCart, cart, clearCart, updateQuantity, removeFromCart } = useCart();
+    const { settings } = useAccessibility();
     const [showResetModal, setShowResetModal] = useState(false);
     const [pendingItem, setPendingItem] = useState<{
         foodItem: FoodItem;
@@ -186,8 +189,8 @@ export default function RestaurantPage() {
         }
     ];
 
-    // Available categories for navigation
-    const availableCategories = ['Popular', ...Object.keys(groupedMenu), 'Shakes', 'ICECREAMS', 'COLD COFFEES', 'Basic Juices & Lemonade', 'Fresh Fruit Blend', 'Celebrity'];
+    // Available categories for navigation - only show categories that exist in this restaurant's menu
+    const availableCategories = ['Popular', ...Object.keys(groupedMenu)];
 
     return (
         <div className="min-h-screen bg-white pb-24 md:pb-16">
@@ -354,7 +357,7 @@ export default function RestaurantPage() {
                                             <span className="font-bold text-[#FF6B00]">{order.items} items</span>
                                             <span> • {order.date}</span>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={handleReorder}
                                             className="p-2 bg-[#FF6B00] hover:bg-[#FF8C3A] rounded-lg transition-colors"
                                             aria-label="Reorder"
@@ -416,11 +419,10 @@ export default function RestaurantPage() {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab as any)}
-                            className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${
-                                activeTab === tab
-                                    ? 'border-[#FF6B00] text-[#FF6B00]'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                            }`}
+                            className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === tab
+                                ? 'border-[#FF6B00] text-[#FF6B00]'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                                }`}
                         >
                             {tab}
                         </button>
@@ -430,155 +432,79 @@ export default function RestaurantPage() {
 
             {activeTab === 'menu' && (
                 <>
-            {/* Category Navigation & Search */}
-            <div className="sticky top-14 z-30 bg-linear-to-r from-orange-50 to-white border-b-2 border-orange-100 shadow-md">
-                <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4 py-3 bg-white/80 backdrop-blur-sm">
-                    <div className="p-2 bg-linear-to-br from-orange-100 to-orange-50 rounded-lg shrink-0">
-                        <Search size={18} className="text-[#FF6B00]" />
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="Search in menu..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="flex-1 outline-none text-sm bg-transparent placeholder:text-[#6C757D]"
-                    />
-                </div>
-                <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4 pb-3 pt-2">
-                    {availableCategories.map((category) => (
-                        <button
-                            key={category}
-                            onClick={() => setSelectedCategory(category)}
-                            className={`px-4 py-2 rounded-full font-semibold transition-all duration-200 shrink-0 text-sm ${selectedCategory === category
-                                ? 'bg-linear-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-md scale-105'
-                                : 'bg-white border-2 border-orange-100 text-[#6C757D] hover:border-[#FF6B00] hover:text-[#FF6B00]'
-                                }`}
-                        >
-                            {category}
-                            {category === 'Popular' && ' (6)'}
-                            {category === 'Shakes' && ' (4)'}
-                            {category === 'ICECREAMS' && ' (15)'}
-                            {category === 'COLD COFFEES' && ' (3)'}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Main Content with Sidebar */}
-            <div className="max-w-7xl mx-auto flex gap-6 pb-32 md:pb-20">
-                {/* Menu Content */}
-                <div className="flex-1 px-3 md:px-4">
-                    {/* Popular Section */}
-                    {(selectedCategory === 'Popular' || !selectedCategory) && (
-                        <div className="mb-8">
-                            <div className="flex items-center gap-3 mb-2 mt-4 pb-3 border-b-2 border-orange-100">
-                                <div className="p-2 bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] rounded-lg">
-                                    <Flame size={20} className="text-white" />
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-[#212529]">Popular</h2>
-                                    <p className="text-xs text-[#6C757D]">Most ordered right now</p>
-                                </div>
+                    {/* Category Navigation & Search */}
+                    <div className="sticky top-14 z-30 bg-linear-to-r from-orange-50 to-white border-b-2 border-orange-100 shadow-md">
+                        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4 py-3 bg-white/80 backdrop-blur-sm">
+                            <div className="p-2 bg-linear-to-br from-orange-100 to-orange-50 rounded-lg shrink-0">
+                                <Search size={18} className="text-[#FF6B00]" />
                             </div>
-
-                            <div className="space-y-4">
-                                {restaurant.menu.slice(0, 6).filter(item =>
-                                    !searchQuery ||
-                                    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                    item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-                                ).map((item) => {
-                                    const originalPrice = Math.floor(item.price * 1.18);
-
-                                    return (
-                                        <div
-                                            key={item.id}
-                                            className="bg-white border-2 border-orange-100 rounded-2xl hover:shadow-xl hover:border-[#FF6B00] transition-all duration-300 overflow-hidden group"
-                                        >
-                                            <div className="flex gap-4 p-4">
-                                                {/* Item Info */}
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="font-bold text-[#212529] text-base mb-1 group-hover:text-[#FF6B00] transition-colors">
-                                                        {item.name}
-                                                    </h3>
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span className="text-[#FF6B00] font-bold text-sm">Rs. {item.price}</span>
-                                                        <span className="text-[#6C757D] line-through text-xs">Rs. {originalPrice}</span>
-                                                    </div>
-                                                    <p className="text-[#6C757D] text-xs line-clamp-2">
-                                                        {item.description || 'Creamy dessert with a crumbly base, topped with fresh strawberries and...'}
-                                                    </p>
-                                                </div>
-
-                                                {/* Item Image */}
-                                                <div className="relative shrink-0">
-                                                    <div className="relative w-24 h-24 rounded-xl overflow-hidden ring-2 ring-orange-100 group-hover:ring-[#FF6B00]">
-                                                        <Image
-                                                            src={item.image}
-                                                            alt={item.name}
-                                                            fill
-                                                            className="object-cover"
-                                                        />
-                                                    </div>
-                                                    {/* Add button */}
-                                                    <button
-                                                        onClick={() => handleAddToCart(item)}
-                                                        className={`absolute bottom-1 right-1 w-8 h-8 rounded-full border-2 border-white hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg active:scale-95 ${
-                                                            restaurant.isClosed 
-                                                                ? 'bg-gray-400 cursor-not-allowed' 
-                                                                : 'bg-gradient-to-br from-[#FF6B00] to-[#FF8C3A]'
-                                                        }`}
-                                                    >
-                                                        <Plus size={16} className="text-white" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search in menu..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="flex-1 outline-none text-sm bg-transparent placeholder:text-[#6C757D]"
+                            />
                         </div>
-                    )}
+                        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4 pb-3 pt-2">
+                            {availableCategories.map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => setSelectedCategory(category)}
+                                    className={`px-4 py-2 rounded-full font-semibold transition-all duration-200 shrink-0 text-sm ${selectedCategory === category
+                                        ? 'bg-linear-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-md scale-105'
+                                        : 'bg-white border-2 border-orange-100 text-[#6C757D] hover:border-[#FF6B00] hover:text-[#FF6B00]'
+                                        }`}
+                                >
+                                    {category}
+                                    {category === 'Popular' && ' (6)'}
+                                    {category === 'Shakes' && ' (4)'}
+                                    {category === 'ICECREAMS' && ' (15)'}
+                                    {category === 'COLD COFFEES' && ' (3)'}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
-                    {/* Other Categories */}
-                    {Object.entries(groupedMenu)
-                        .filter(([category]) =>
-                            (selectedCategory !== 'Popular' && (!selectedCategory || category === selectedCategory)) ||
-                            (!selectedCategory)
-                        )
-                        .map(([category, items]) => {
-                            const filteredItems = items.filter(item =>
-                                !searchQuery ||
-                                item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-                            );
-
-                            if (filteredItems.length === 0) return null;
-
-                            return (
-                                <div key={category} className="mb-8">
-                                    <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-orange-100">
-                                        <div className="p-2 bg-linear-to-br from-orange-100 to-orange-50 rounded-lg">
-                                            <span className="text-2xl">
-                                                {category === 'Pizza' ? '🍕' :
-                                                    category === 'Burgers' ? '🍔' :
-                                                        category === 'Sandwiches' ? '🥪' :
-                                                            category === 'Appetizers' ? '🥗' :
-                                                                category === 'Salads' ? '🥗' :
-                                                                    category === 'Desserts' ? '🍰' : '🍽️'}
-                                            </span>
+                    {/* Main Content with Sidebar */}
+                    <div className="max-w-7xl mx-auto flex gap-6 pb-32 md:pb-20">
+                        {/* Menu Content */}
+                        <div className="flex-1 px-3 md:px-4">
+                            {/* Popular Section */}
+                            {(selectedCategory === 'Popular' || !selectedCategory) && (
+                                <div className="mb-8">
+                                    <div className="flex items-center gap-3 mb-2 mt-4 pb-3 border-b-2 border-orange-100">
+                                        <div className="p-2 bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] rounded-lg">
+                                            <Flame size={20} className="text-white" />
                                         </div>
-                                        <h2 className="text-xl font-bold text-[#212529]">{category}</h2>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-[#212529]">Popular</h2>
+                                            <p className="text-xs text-[#6C757D]">Most ordered right now</p>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        {filteredItems.map((item) => {
+                                        {restaurant.menu.slice(0, 6).filter(item =>
+                                            !searchQuery ||
+                                            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+                                        ).map((item) => {
                                             const originalPrice = Math.floor(item.price * 1.18);
 
                                             return (
                                                 <div
                                                     key={item.id}
-                                                    className="bg-white border-2 border-orange-100 rounded-2xl hover:shadow-xl hover:border-[#FF6B00] transition-all duration-300 overflow-hidden group"
+                                                    className="bg-white border-2 border-orange-100 rounded-2xl hover:shadow-xl hover:border-[#FF6B00] transition-all duration-300 overflow-visible group relative"
                                                 >
+                                                    {/* Audio Assistance Speaker Button */}
+                                                    {settings.audioAssistance && (
+                                                        <div className="absolute top-2 right-2 z-40">
+                                                            <SpeakButton
+                                                                text={`${item.name}. Price: ${item.price} rupees. ${item.description || ''}`}
+                                                                size="sm"
+                                                            />
+                                                        </div>
+                                                    )}
                                                     <div className="flex gap-4 p-4">
                                                         {/* Item Info */}
                                                         <div className="flex-1 min-w-0">
@@ -590,7 +516,7 @@ export default function RestaurantPage() {
                                                                 <span className="text-[#6C757D] line-through text-xs">Rs. {originalPrice}</span>
                                                             </div>
                                                             <p className="text-[#6C757D] text-xs line-clamp-2">
-                                                                {item.description || 'Regular/Large'}
+                                                                {item.description || 'Creamy dessert with a crumbly base, topped with fresh strawberries and...'}
                                                             </p>
                                                         </div>
 
@@ -607,11 +533,10 @@ export default function RestaurantPage() {
                                                             {/* Add button */}
                                                             <button
                                                                 onClick={() => handleAddToCart(item)}
-                                                                className={`absolute bottom-1 right-1 w-8 h-8 rounded-full border-2 border-white hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg active:scale-95 ${
-                                                                    restaurant.isClosed 
-                                                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                                                        : 'bg-gradient-to-br from-[#FF6B00] to-[#FF8C3A]'
-                                                                }`}
+                                                                className={`absolute bottom-1 right-1 w-8 h-8 rounded-full border-2 border-white hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg active:scale-95 ${restaurant.isClosed
+                                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                                    : 'bg-gradient-to-br from-[#FF6B00] to-[#FF8C3A]'
+                                                                    }`}
                                                             >
                                                                 <Plus size={16} className="text-white" />
                                                             </button>
@@ -622,171 +547,282 @@ export default function RestaurantPage() {
                                         })}
                                     </div>
                                 </div>
-                            );
-                        })}
-
-                    {/* Empty state if no results */}
-                    {searchQuery && Object.entries(groupedMenu).every(([, items]) =>
-                        items.filter(item =>
-                            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-                        ).length === 0
-                    ) && (
-                            <div className="text-center py-16">
-                                <p className="text-[#6C757D] text-lg">No items found matching &quot;{searchQuery}&quot;</p>
-                            </div>
-                        )}
-                </div>
-
-                {/* Sidebar - Cart */}
-                <div className="hidden lg:block w-96 shrink-0">
-                    <div className="sticky top-24 bg-linear-to-br from-orange-50 to-white border-2 border-orange-100 rounded-2xl p-5 shadow-lg">
-                        {/* Cart Header */}
-                        <div className="flex items-center justify-between mb-4 pb-4 border-b border-orange-200">
-                            <div className="flex items-center gap-2">
-                                <div className="p-2 bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] rounded-lg">
-                                    <ShoppingBag size={20} className="text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-[#212529]">Your Cart</h3>
-                                    <p className="text-xs text-[#6C757D]">
-                                        {cart.items.length === 0 ? 'Empty' : `${cart.items.reduce((sum, item) => sum + item.quantity, 0)} items`}
-                                    </p>
-                                </div>
-                            </div>
-                            {cart.items.length > 0 && (
-                                <button
-                                    onClick={clearCart}
-                                    className="text-xs text-red-600 hover:text-red-700 font-semibold flex items-center gap-1"
-                                >
-                                    <Trash2 size={14} />
-                                    Clear
-                                </button>
                             )}
+
+                            {/* Other Categories */}
+                            {Object.entries(groupedMenu)
+                                .filter(([category]) =>
+                                    (selectedCategory !== 'Popular' && (!selectedCategory || category === selectedCategory)) ||
+                                    (!selectedCategory)
+                                )
+                                .map(([category, items]) => {
+                                    const filteredItems = items.filter(item =>
+                                        !searchQuery ||
+                                        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+                                    );
+
+                                    if (filteredItems.length === 0) return null;
+
+                                    return (
+                                        <div key={category} className="mb-8">
+                                            <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-orange-100">
+                                                <div className="p-2 bg-linear-to-br from-orange-100 to-orange-50 rounded-lg">
+                                                    <span className="text-2xl">
+                                                        {category === 'Pizza' ? '🍕' :
+                                                            category === 'Burgers' ? '🍔' :
+                                                                category === 'Sandwiches' ? '🥪' :
+                                                                    category === 'Appetizers' ? '🥗' :
+                                                                        category === 'Salads' ? '🥗' :
+                                                                            category === 'Desserts' ? '🍰' : '🍽️'}
+                                                    </span>
+                                                </div>
+                                                <h2 className="text-xl font-bold text-[#212529]">{category}</h2>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                {filteredItems.map((item) => {
+                                                    const originalPrice = Math.floor(item.price * 1.18);
+
+                                                    return (
+                                                        <div
+                                                            key={item.id}
+                                                            className="bg-white border-2 border-orange-100 rounded-2xl hover:shadow-xl hover:border-[#FF6B00] transition-all duration-300 overflow-visible group relative"
+                                                        >
+                                                            {/* Audio Assistance Speaker Button */}
+                                                            {settings.audioAssistance && (
+                                                                <div className="absolute top-2 right-2 z-40">
+                                                                    <SpeakButton
+                                                                        text={`${item.name}. Price: ${item.price} rupees. ${item.description || ''}`}
+                                                                        size="sm"
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                            <div className="flex gap-4 p-4">
+                                                                {/* Item Info */}
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-[#212529] text-base mb-1 group-hover:text-[#FF6B00] transition-colors">
+                                                                        {item.name}
+                                                                    </h3>
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <span className="text-[#FF6B00] font-bold text-sm">Rs. {item.price}</span>
+                                                                        <span className="text-[#6C757D] line-through text-xs">Rs. {originalPrice}</span>
+                                                                    </div>
+                                                                    <p className="text-[#6C757D] text-xs line-clamp-2">
+                                                                        {item.description || 'Regular/Large'}
+                                                                    </p>
+                                                                </div>
+
+                                                                {/* Item Image */}
+                                                                <div className="relative shrink-0">
+                                                                    <div className="relative w-24 h-24 rounded-xl overflow-hidden ring-2 ring-orange-100 group-hover:ring-[#FF6B00]">
+                                                                        <Image
+                                                                            src={item.image}
+                                                                            alt={item.name}
+                                                                            fill
+                                                                            className="object-cover"
+                                                                        />
+                                                                    </div>
+                                                                    {/* Add button */}
+                                                                    <button
+                                                                        onClick={() => handleAddToCart(item)}
+                                                                        className={`absolute bottom-1 right-1 w-8 h-8 rounded-full border-2 border-white hover:scale-110 flex items-center justify-center transition-all duration-200 shadow-lg active:scale-95 ${restaurant.isClosed
+                                                                            ? 'bg-gray-400 cursor-not-allowed'
+                                                                            : 'bg-gradient-to-br from-[#FF6B00] to-[#FF8C3A]'
+                                                                            }`}
+                                                                    >
+                                                                        <Plus size={16} className="text-white" />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                            {/* Empty state if no results */}
+                            {searchQuery && Object.entries(groupedMenu).every(([, items]) =>
+                                items.filter(item =>
+                                    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+                                ).length === 0
+                            ) && (
+                                    <div className="text-center py-16">
+                                        <p className="text-[#6C757D] text-lg">No items found matching &quot;{searchQuery}&quot;</p>
+                                    </div>
+                                )}
                         </div>
 
-                        {/* Cart Items */}
-                        {cart.items.length === 0 ? (
-                            <div className="text-center py-12">
-                                <div className="w-20 h-20 bg-linear-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <ShoppingBag size={32} className="text-[#FF6B00]" />
-                                </div>
-                                <p className="text-[#6C757D] font-medium mb-2">Your cart is empty</p>
-                                <p className="text-sm text-[#6C757D]">Add items from the menu to get started</p>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4 pr-2">
-                                    {cart.items.map((cartItem) => (
-                                        <div
-                                            key={cartItem.foodItem.id}
-                                            className="bg-white border border-orange-100 rounded-xl p-3 hover:shadow-md transition-all duration-200"
+                        {/* Sidebar - Cart */}
+                        <div className="hidden lg:block w-96 shrink-0">
+                            <div className="sticky top-24 bg-linear-to-br from-orange-50 to-white border-2 border-orange-100 rounded-2xl p-5 shadow-lg">
+                                {/* Cart Header */}
+                                <div className="flex items-center justify-between mb-4 pb-4 border-b border-orange-200">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-2 bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] rounded-lg">
+                                            <ShoppingBag size={20} className="text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-[#212529]">Your Cart</h3>
+                                            <p className="text-xs text-[#6C757D]">
+                                                {cart.items.length === 0 ? 'Empty' : `${cart.items.reduce((sum, item) => sum + item.quantity, 0)} items`}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {cart.items.length > 0 && (
+                                        <button
+                                            onClick={clearCart}
+                                            className="text-xs text-red-600 hover:text-red-700 font-semibold flex items-center gap-1"
                                         >
-                                            <div className="flex gap-3 mb-3">
-                                                {/* Item Image */}
-                                                <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                                                    <Image
-                                                        src={cartItem.foodItem.image}
-                                                        alt={cartItem.foodItem.name}
-                                                        fill
-                                                        className="object-cover"
+                                            <Trash2 size={14} />
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Cart Items */}
+                                {cart.items.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <div className="w-20 h-20 bg-linear-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <ShoppingBag size={32} className="text-[#FF6B00]" />
+                                        </div>
+                                        <p className="text-[#6C757D] font-medium mb-2">Your cart is empty</p>
+                                        <p className="text-sm text-[#6C757D]">Add items from the menu to get started</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="space-y-3 max-h-[400px] overflow-y-auto mb-4 pr-2">
+                                            {cart.items.map((cartItem) => (
+                                                <div
+                                                    key={cartItem.foodItem.id}
+                                                    className="bg-white border border-orange-100 rounded-xl p-3 hover:shadow-md transition-all duration-200 relative"
+                                                >
+                                                    {/* Audio Assistance Speaker Button */}
+                                                    {settings.audioAssistance && (
+                                                        <div className="absolute top-1 right-1 z-40">
+                                                            <SpeakButton
+                                                                text={`${cartItem.foodItem.name}. Quantity: ${cartItem.quantity}. Price: ${cartItem.foodItem.price * cartItem.quantity} rupees. ${cartItem.foodItem.price} rupees each.`}
+                                                                size="sm"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className="flex gap-3 mb-3">
+                                                        {/* Item Image */}
+                                                        <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                                                            <Image
+                                                                src={cartItem.foodItem.image}
+                                                                alt={cartItem.foodItem.name}
+                                                                fill
+                                                                className="object-cover"
+                                                            />
+                                                        </div>
+
+                                                        {/* Item Info */}
+                                                        <div className="flex-1 min-w-0 pr-6">
+                                                            <h4 className="font-semibold text-[#212529] text-sm mb-1 line-clamp-1">
+                                                                {cartItem.foodItem.name}
+                                                            </h4>
+                                                            <p className="text-[#FF6B00] font-bold text-sm">
+                                                                Rs. {cartItem.foodItem.price * cartItem.quantity}
+                                                            </p>
+                                                            <p className="text-xs text-[#6C757D]">
+                                                                Rs. {cartItem.foodItem.price} each
+                                                            </p>
+                                                        </div>
+
+                                                        {/* Remove Button */}
+                                                        <button
+                                                            onClick={() => removeFromCart(cartItem.foodItem.id)}
+                                                            className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded-lg transition-colors shrink-0 mt-6"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Quantity Controls */}
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-[#6C757D] font-medium">Quantity</span>
+                                                        <div className="flex items-center gap-2 bg-linear-to-r from-orange-50 to-orange-100 rounded-lg p-1">
+                                                            <button
+                                                                onClick={() => updateQuantity(cartItem.foodItem.id, cartItem.quantity - 1)}
+                                                                className="w-7 h-7 flex items-center justify-center bg-white hover:bg-linear-to-br hover:from-[#FF6B00] hover:to-[#FF8C3A] text-[#FF6B00] hover:text-white rounded-md transition-all duration-200 font-bold shadow-sm"
+                                                            >
+                                                                <Minus size={14} />
+                                                            </button>
+                                                            <span className="font-bold text-[#212529] min-w-6 text-center">
+                                                                {cartItem.quantity}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => updateQuantity(cartItem.foodItem.id, cartItem.quantity + 1)}
+                                                                className="w-7 h-7 flex items-center justify-center bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] text-white hover:shadow-md rounded-md transition-all duration-200 font-bold"
+                                                            >
+                                                                <Plus size={14} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Cart Summary */}
+                                        <div className="border-t-2 border-orange-200 pt-4 space-y-3 relative">
+                                            {/* Audio Assistance - Read Cart Total */}
+                                            {settings.audioAssistance && (
+                                                <div className="absolute top-2 right-0 z-40">
+                                                    <SpeakButton
+                                                        text={`Your cart total. ${cart.items.length} items. Subtotal: ${cart.items.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0)} rupees. Delivery: Free. Service fee: 11 rupees 20 paisa. Total: ${(cart.items.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0) + 11.20).toFixed(0)} rupees.`}
+                                                        size="sm"
                                                     />
                                                 </div>
-
-                                                {/* Item Info */}
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="font-semibold text-[#212529] text-sm mb-1 line-clamp-1">
-                                                        {cartItem.foodItem.name}
-                                                    </h4>
-                                                    <p className="text-[#FF6B00] font-bold text-sm">
-                                                        Rs. {cartItem.foodItem.price * cartItem.quantity}
-                                                    </p>
-                                                    <p className="text-xs text-[#6C757D]">
-                                                        Rs. {cartItem.foodItem.price} each
-                                                    </p>
+                                            )}
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-[#6C757D]">Subtotal</span>
+                                                <span className="font-bold text-[#212529]">
+                                                    Rs. {cart.items.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0).toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-[#6C757D]">Delivery</span>
+                                                    <div className="bg-linear-to-r from-[#FF6B00] to-[#FF8C3A] text-white px-2 py-0.5 rounded text-xs font-bold">FREE</div>
                                                 </div>
-
-                                                {/* Remove Button */}
-                                                <button
-                                                    onClick={() => removeFromCart(cartItem.foodItem.id)}
-                                                    className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded-lg transition-colors shrink-0"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
+                                                <span className="text-green-600 font-semibold line-through">Rs. 129</span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-[#6C757D]">Service fee</span>
+                                                <span className="font-bold text-[#212529]">Rs. 11.20</span>
                                             </div>
 
-                                            {/* Quantity Controls */}
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-xs text-[#6C757D] font-medium">Quantity</span>
-                                                <div className="flex items-center gap-2 bg-linear-to-r from-orange-50 to-orange-100 rounded-lg p-1">
-                                                    <button
-                                                        onClick={() => updateQuantity(cartItem.foodItem.id, cartItem.quantity - 1)}
-                                                        className="w-7 h-7 flex items-center justify-center bg-white hover:bg-linear-to-br hover:from-[#FF6B00] hover:to-[#FF8C3A] text-[#FF6B00] hover:text-white rounded-md transition-all duration-200 font-bold shadow-sm"
-                                                    >
-                                                        <Minus size={14} />
-                                                    </button>
-                                                    <span className="font-bold text-[#212529] min-w-6 text-center">
-                                                        {cartItem.quantity}
-                                                    </span>
-                                                    <button
-                                                        onClick={() => updateQuantity(cartItem.foodItem.id, cartItem.quantity + 1)}
-                                                        className="w-7 h-7 flex items-center justify-center bg-linear-to-br from-[#FF6B00] to-[#FF8C3A] text-white hover:shadow-md rounded-md transition-all duration-200 font-bold"
-                                                    >
-                                                        <Plus size={14} />
-                                                    </button>
-                                                </div>
+                                            <div className="bg-linear-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-3 flex items-center gap-2">
+                                                <CheckCircle size={18} className="text-green-600 shrink-0" />
+                                                <span className="text-green-700 text-sm font-semibold">Free delivery applied!</span>
                                             </div>
+
+                                            <div className="flex items-center justify-between pt-3 border-t border-orange-200">
+                                                <span className="font-bold text-[#212529]">Total</span>
+                                                <span className="font-bold text-[#FF6B00] text-2xl">
+                                                    Rs. {(cart.items.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0) + 11.20).toFixed(2)}
+                                                </span>
+                                            </div>
+
+                                            <button
+                                                onClick={() => router.push('/cart')}
+                                                className="w-full py-3.5 bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] hover:from-[#FF8C3A] hover:to-[#FF6B00] text-white rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                                            >
+                                                <ShoppingBag size={20} />
+                                                Proceed to Checkout
+                                            </button>
                                         </div>
-                                    ))}
-                                </div>
-
-                                {/* Cart Summary */}
-                                <div className="border-t-2 border-orange-200 pt-4 space-y-3">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-[#6C757D]">Subtotal</span>
-                                        <span className="font-bold text-[#212529]">
-                                            Rs. {cart.items.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0).toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between text-sm">
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-[#6C757D]">Delivery</span>
-                                            <div className="bg-linear-to-r from-[#FF6B00] to-[#FF8C3A] text-white px-2 py-0.5 rounded text-xs font-bold">FREE</div>
-                                        </div>
-                                        <span className="text-green-600 font-semibold line-through">Rs. 129</span>
-                                    </div>
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-[#6C757D]">Service fee</span>
-                                        <span className="font-bold text-[#212529]">Rs. 11.20</span>
-                                    </div>
-
-                                    <div className="bg-linear-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-3 flex items-center gap-2">
-                                        <CheckCircle size={18} className="text-green-600 shrink-0" />
-                                        <span className="text-green-700 text-sm font-semibold">Free delivery applied!</span>
-                                    </div>
-
-                                    <div className="flex items-center justify-between pt-3 border-t border-orange-200">
-                                        <span className="font-bold text-[#212529]">Total</span>
-                                        <span className="font-bold text-[#FF6B00] text-2xl">
-                                            Rs. {(cart.items.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0) + 11.20).toFixed(2)}
-                                        </span>
-                                    </div>
-
-                                    <button
-                                        onClick={() => router.push('/cart')}
-                                        className="w-full py-3.5 bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] hover:from-[#FF8C3A] hover:to-[#FF6B00] text-white rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
-                                    >
-                                        <ShoppingBag size={20} />
-                                        Proceed to Checkout
-                                    </button>
-                                </div>
-                            </>
-                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            </>
+                </>
             )}
 
             {activeTab === 'reviews' && (
@@ -903,11 +939,10 @@ export default function RestaurantPage() {
                                         >
                                             <Star
                                                 size={32}
-                                                className={`${
-                                                    star <= newReview.rating
-                                                        ? 'fill-[#FF6B00] text-[#FF6B00]'
-                                                        : 'text-gray-300'
-                                                }`}
+                                                className={`${star <= newReview.rating
+                                                    ? 'fill-[#FF6B00] text-[#FF6B00]'
+                                                    : 'text-gray-300'
+                                                    }`}
                                             />
                                         </button>
                                     ))}

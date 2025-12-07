@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Star, Clock, MapPin, TrendingUp, Heart } from 'lucide-react';
+import { Star, Clock, MapPin, TrendingUp } from 'lucide-react';
 import Card from '@/components/ui/Card';
+import SpeakButton from '@/components/ui/SpeakButton';
 import { Restaurant } from '@/lib/types';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useAccessibility } from '@/lib/accessibility-context';
 
 type RestaurantCardProps = {
     restaurant: Restaurant;
@@ -14,76 +14,20 @@ type RestaurantCardProps = {
 };
 
 export default function RestaurantCard({ restaurant, pictorialMode = false }: RestaurantCardProps) {
-    const { userId } = useAuth();
-    const [isFavorite, setIsFavorite] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
-    // Check if favorite on mount
-    useEffect(() => {
-        const checkFavorite = () => {
-            try {
-                const storageKey = userId ? `foodhub_favorites_${userId}` : 'foodhub_favorites_guest';
-                const storedFavorites = localStorage.getItem(storageKey);
-                if (storedFavorites) {
-                    const favorites = JSON.parse(storedFavorites);
-                    const isFav = favorites.some((fav: any) => fav.id === restaurant.id);
-                    setIsFavorite(isFav);
-                } else {
-                    setIsFavorite(false);
-                }
-            } catch (error) {
-                console.error('Error checking favorites:', error);
-            }
-        };
-        
-        checkFavorite();
-        
-        // Listen for storage events to update state across components
-        window.addEventListener('storage', checkFavorite);
-        // Also listen for custom event for same-window updates
-        window.addEventListener('favorites-updated', checkFavorite);
-        
-        return () => {
-            window.removeEventListener('storage', checkFavorite);
-            window.removeEventListener('favorites-updated', checkFavorite);
-        };
-    }, [userId, restaurant.id]);
-
-    const toggleFavorite = async (e: React.MouseEvent) => {
-        e.preventDefault(); // Prevent navigation
-        e.stopPropagation();
-        
-        setIsLoading(true);
-        try {
-            const storageKey = userId ? `foodhub_favorites_${userId}` : 'foodhub_favorites_guest';
-            const storedFavorites = localStorage.getItem(storageKey);
-            let favorites = storedFavorites ? JSON.parse(storedFavorites) : [];
-            
-            if (isFavorite) {
-                // Remove from favorites
-                favorites = favorites.filter((fav: any) => fav.id !== restaurant.id);
-                setIsFavorite(false);
-            } else {
-                // Add to favorites
-                favorites.push(restaurant);
-                setIsFavorite(true);
-            }
-            
-            localStorage.setItem(storageKey, JSON.stringify(favorites));
-            
-            // Dispatch a custom event so other components update immediately
-            window.dispatchEvent(new Event('favorites-updated'));
-            window.dispatchEvent(new Event('storage'));
-            
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { settings } = useAccessibility();
 
     return (
-        <Link href={`/restaurant/${restaurant.slug}`} className="group relative block">
+        <Link href={`/restaurant/${restaurant.slug}`} className="group relative block overflow-visible">
+            {/* Audio Assistance Speaker Button */}
+            {settings.audioAssistance && (
+                <div className="absolute top-2 right-2 z-40">
+                    <SpeakButton
+                        text={`${restaurant.name}. ${restaurant.cuisine} restaurant. Rating: ${restaurant.rating} stars. Delivery time: ${restaurant.deliveryTime}. Distance: ${restaurant.distance}`}
+                        size="md"
+                    />
+                </div>
+            )}
+
             <Card className={`w-full shrink-0 hover:scale-[1.02] transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-[#FF6B00]/20 card-shine ${pictorialMode ? 'h-[400px]' : ''}`}>
                 <div className={`relative ${pictorialMode ? 'h-80' : 'h-44'} overflow-hidden transition-all duration-300`}>
                     <Image
@@ -95,18 +39,6 @@ export default function RestaurantCard({ restaurant, pictorialMode = false }: Re
 
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                    {/* Favorite Button */}
-                    <button
-                        onClick={toggleFavorite}
-                        disabled={isLoading}
-                        className="absolute top-3 right-3 z-20 p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/40 transition-all active:scale-95"
-                    >
-                        <Heart 
-                            size={20} 
-                            className={`transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white'}`} 
-                        />
-                    </button>
 
                     {/* Discount Badge */}
                     {restaurant.discount && !pictorialMode && (

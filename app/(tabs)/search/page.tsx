@@ -4,6 +4,7 @@ import { useState, useMemo, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search as SearchIcon, X, SlidersHorizontal, Star, Clock, MapPin, TrendingUp, Sparkles, ChevronDown, ChevronUp, Mic } from 'lucide-react';
 import RestaurantCard from '@/components/shared/RestaurantCard';
+import SpeakButton from '@/components/ui/SpeakButton';
 import { restaurants, cuisineCategories } from '@/lib/data';
 import { useAccessibility } from '@/lib/accessibility-context';
 
@@ -146,215 +147,273 @@ function SearchContent() {
             <div className="sticky top-0 z-40 shadow-2xl">
                 <div className="bg-gradient-to-br from-[#FF6B00] via-[#FF7A1F] to-[#FF8C3A]">
                     <div className="max-w-7xl mx-auto px-4 pb-8">
-                    {/* Title */}
-                    <div className="flex items-center justify-between mb-6">
+                        {/* Title */}
+                        <div className="flex items-center justify-between mb-6">
 
-                        {(searchQuery || activeFiltersCount > 0) && (
-                            <button
-                                onClick={clearAllFilters}
-                                className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 border border-white/30"
-                            >
-                                <X size={18} />
-                                Clear All
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Enhanced Search Bar */}
-                    <div className="relative">
-                        <div className="relative">
-                            <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6C757D]" />
-                            <input
-                                id="search-input"
-                                type="text"
-                                placeholder="Search restaurants, dishes, cuisines..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onFocus={() => setIsSearchFocused(true)}
-                                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                                className="w-full pl-12 pr-20 py-4 bg-white border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:ring-4 focus:ring-white/30 transition-all duration-300 placeholder:text-[#6C757D] text-lg shadow-2xl"
-                            />
-                            <button
-                                onClick={isListening ? stopVoiceSearch : startVoiceSearch}
-                                className={`absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 ${
-                                    isListening 
-                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse' 
-                                        : 'bg-white/20 text-white hover:bg-white/30'
-                                }`}
-                                aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
-                                title={isListening ? 'Stop voice search' : 'Start voice search'}
-                            >
-                                <Mic size={16} />
-                            </button>
-                            {searchQuery && (
+                            {(searchQuery || activeFiltersCount > 0) && (
                                 <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                    onClick={clearAllFilters}
+                                    className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 border border-white/30"
                                 >
-                                    <X size={20} className="text-[#6C757D]" />
+                                    <X size={18} />
+                                    Clear All
                                 </button>
                             )}
                         </div>
 
-                        {/* Search Suggestions Dropdown */}
-                        {isSearchFocused && !searchQuery && (
-                            <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 animate-in z-50">
-                                {/* Popular Searches */}
-                                <div className="mb-5">
-                                    <p className="text-xs font-bold text-[#6C757D] mb-3 flex items-center gap-2">
-                                        <TrendingUp size={14} />
-                                        POPULAR SEARCHES
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {popularSearches.map((search) => (
-                                            <button
-                                                key={search}
-                                                onClick={() => setSearchQuery(search)}
-                                                className="px-4 py-2.5 bg-gradient-to-r from-[#FF6B00]/10 to-[#FF8C3A]/10 hover:from-[#FF6B00]/20 hover:to-[#FF8C3A]/20 text-[#FF6B00] rounded-xl text-sm font-semibold transition-all duration-300 border border-[#FF6B00]/20 hover:scale-105"
-                                            >
-                                                {search}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Recent Searches */}
-                                <div>
-                                    <p className="text-xs font-bold text-[#6C757D] mb-3 flex items-center gap-2">
-                                        <Clock size={14} />
-                                        RECENT SEARCHES
-                                    </p>
-                                    <div className="space-y-2">
-                                        {recentSearches.map((search) => (
-                                            <button
-                                                key={search}
-                                                onClick={() => setSearchQuery(search)}
-                                                className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group"
-                                            >
-                                                <span className="text-[#212529] font-medium">{search}</span>
-                                                <SearchIcon size={16} className="text-[#6C757D] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                        {/* Enhanced Search Bar */}
+                        <div className="relative">
+                            <div className="relative">
+                                <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6C757D]" />
+                                <input
+                                    id="search-input"
+                                    type="text"
+                                    placeholder="Search restaurants, dishes, cuisines..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                                    className="w-full pl-12 pr-20 py-4 bg-white border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:ring-4 focus:ring-white/30 transition-all duration-300 placeholder:text-[#6C757D] text-lg shadow-2xl"
+                                />
+                                <button
+                                    onClick={isListening ? stopVoiceSearch : startVoiceSearch}
+                                    className={`absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B00] focus:ring-offset-2 ${isListening
+                                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse'
+                                        : 'bg-[#FF6B00]/10 text-[#FF6B00] hover:bg-[#FF6B00]/20'
+                                        }`}
+                                    aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+                                    title={isListening ? 'Stop voice search' : 'Start voice search'}
+                                >
+                                    <Mic size={16} />
+                                </button>
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                                    >
+                                        <X size={20} className="text-[#6C757D]" />
+                                    </button>
+                                )}
                             </div>
-                        )}
+
+                            {/* Search Suggestions Dropdown */}
+                            {isSearchFocused && !searchQuery && (
+                                <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 animate-in z-50">
+                                    {/* Popular Searches */}
+                                    <div className="mb-5">
+                                        <p className="text-xs font-bold text-[#6C757D] mb-3 flex items-center gap-2">
+                                            <TrendingUp size={14} />
+                                            POPULAR SEARCHES
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {popularSearches.map((search) => (
+                                                <button
+                                                    key={search}
+                                                    onClick={() => setSearchQuery(search)}
+                                                    className="px-4 py-2.5 bg-gradient-to-r from-[#FF6B00]/10 to-[#FF8C3A]/10 hover:from-[#FF6B00]/20 hover:to-[#FF8C3A]/20 text-[#FF6B00] rounded-xl text-sm font-semibold transition-all duration-300 border border-[#FF6B00]/20 hover:scale-105"
+                                                >
+                                                    {search}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Recent Searches */}
+                                    <div>
+                                        <p className="text-xs font-bold text-[#6C757D] mb-3 flex items-center gap-2">
+                                            <Clock size={14} />
+                                            RECENT SEARCHES
+                                        </p>
+                                        <div className="space-y-2">
+                                            {recentSearches.map((search) => (
+                                                <button
+                                                    key={search}
+                                                    onClick={() => setSearchQuery(search)}
+                                                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group"
+                                                >
+                                                    <span className="text-[#212529] font-medium">{search}</span>
+                                                    <SearchIcon size={16} className="text-[#6C757D] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Filter Button */}
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="mt-4 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-5 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 border border-white/30"
+                        >
+                            <SlidersHorizontal size={20} />
+                            Filters
+                            {activeFiltersCount > 0 && (
+                                <span className="bg-white text-[#FF6B00] text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-2">
+                                    {activeFiltersCount}
+                                </span>
+                            )}
+                            {showFilters ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </button>
                     </div>
-
-                    {/* Filter Button */}
-                    <button
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="mt-4 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-5 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 border border-white/30"
-                    >
-                        <SlidersHorizontal size={20} />
-                        Filters
-                        {activeFiltersCount > 0 && (
-                            <span className="bg-white text-[#FF6B00] text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-2">
-                                {activeFiltersCount}
-                            </span>
-                        )}
-                        {showFilters ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                    </button>
                 </div>
-            </div>
 
-            {/* Filters Panel */}
-            {showFilters && (
-                <div className="bg-white border-b border-gray-200 shadow-lg animate-in">
-                    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-                        {/* Sort Options */}
-                        <div>
-                            <label className="text-sm font-bold text-[#212529] mb-3 flex items-center gap-2">
-                                <Sparkles size={16} className="text-[#FF6B00]" />
-                                Sort By
-                            </label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {[
-                                    { value: 'relevance' as SortOption, label: 'Relevance', icon: TrendingUp },
-                                    { value: 'rating' as SortOption, label: 'Rating', icon: Star },
-                                    { value: 'distance' as SortOption, label: 'Distance', icon: MapPin },
-                                    { value: 'time' as SortOption, label: 'Delivery Time', icon: Clock }
-                                ].map((option) => (
-                                    <button
-                                        key={option.value}
-                                        onClick={() => setSortBy(option.value)}
-                                        className={`px-4 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${sortBy === option.value
-                                            ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-lg scale-105'
-                                            : 'bg-gray-100 text-[#6C757D] hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        <option.icon size={18} />
-                                        {option.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Rating Filter */}
-                        <div>
-                            <label className="text-sm font-bold text-[#212529] mb-3 flex items-center gap-2">
-                                <Star size={16} className="text-[#FF6B00]" />
-                                Minimum Rating
-                            </label>
-                            <div className="flex gap-2">
-                                {[0, 3, 3.5, 4, 4.5].map((rating) => (
-                                    <button
-                                        key={rating}
-                                        onClick={() => setMinRating(rating)}
-                                        className={`flex-1 px-3 py-3 rounded-xl font-semibold transition-all duration-300 ${minRating === rating
-                                            ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-lg scale-105'
-                                            : 'bg-gray-100 text-[#6C757D] hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {rating === 0 ? 'All' : `${rating}+`}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Cuisines Filter */}
-                        <div>
-                            <label className="text-sm font-bold text-[#212529] mb-3 block">
-                                Cuisines
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                                {cuisineCategories.map((cuisine) => (
-                                    <button
-                                        key={cuisine.id}
-                                        onClick={() => toggleCuisine(cuisine.name)}
-                                        className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${selectedCuisines.includes(cuisine.name)
-                                            ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-lg scale-105'
-                                            : 'bg-gray-100 text-[#6C757D] hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        <span>{cuisine.icon}</span>
-                                        {cuisine.name}
-                                        {selectedCuisines.includes(cuisine.name) && (
-                                            <X size={16} />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Toggle Filters */}
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                {/* Filters Panel */}
+                {showFilters && (
+                    <div className="bg-white border-b border-gray-200 shadow-lg animate-in">
+                        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+                            {/* Sort Options */}
                             <div>
-                                <p className="font-semibold text-[#212529]">Show Open Only</p>
-                                <p className="text-sm text-[#6C757D]">Hide closed restaurants</p>
+                                <label className="text-sm font-bold text-[#212529] mb-3 flex items-center gap-2">
+                                    <Sparkles size={16} className="text-[#FF6B00]" />
+                                    Sort By
+                                    {settings.audioAssistance && (
+                                        <SpeakButton
+                                            text="Sort By options. Choose how to order the restaurants. Options are: Relevance, Rating, Distance, and Delivery Time."
+                                            size="sm"
+                                        />
+                                    )}
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { value: 'relevance' as SortOption, label: 'Relevance', icon: TrendingUp, description: 'Sort by relevance. Shows most relevant restaurants first.' },
+                                        { value: 'rating' as SortOption, label: 'Rating', icon: Star, description: 'Sort by rating. Shows highest rated restaurants first.' },
+                                        { value: 'distance' as SortOption, label: 'Distance', icon: MapPin, description: 'Sort by distance. Shows nearest restaurants first.' },
+                                        { value: 'time' as SortOption, label: 'Delivery Time', icon: Clock, description: 'Sort by delivery time. Shows fastest delivery first.' }
+                                    ].map((option) => (
+                                        <div key={option.value} className="relative">
+                                            {settings.audioAssistance && (
+                                                <div className="absolute -top-2 -right-2 z-40">
+                                                    <SpeakButton
+                                                        text={option.description}
+                                                        size="sm"
+                                                    />
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={() => setSortBy(option.value)}
+                                                className={`w-full px-4 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${sortBy === option.value
+                                                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-lg scale-105'
+                                                    : 'bg-gray-100 text-[#6C757D] hover:bg-gray-200'
+                                                    }`}
+                                            >
+                                                <option.icon size={18} />
+                                                {option.label}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <button
-                                onClick={() => setShowOpenOnly(!showOpenOnly)}
-                                className={`relative w-14 h-7 rounded-full transition-all duration-300 ${showOpenOnly ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A]' : 'bg-gray-300'
-                                    }`}
-                            >
-                                <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${showOpenOnly ? 'translate-x-7' : 'translate-x-0'
-                                    }`} />
-                            </button>
+
+                            {/* Rating Filter */}
+                            <div>
+                                <label className="text-sm font-bold text-[#212529] mb-3 flex items-center gap-2">
+                                    <Star size={16} className="text-[#FF6B00]" />
+                                    Minimum Rating
+                                    {settings.audioAssistance && (
+                                        <SpeakButton
+                                            text="Minimum Rating filter. Choose the minimum star rating for restaurants. Options are: All ratings, 3 stars and above, 3.5 stars and above, 4 stars and above, or 4.5 stars and above."
+                                            size="sm"
+                                        />
+                                    )}
+                                </label>
+                                <div className="flex gap-2">
+                                    {[
+                                        { rating: 0, label: 'All', description: 'Show all restaurants regardless of rating.' },
+                                        { rating: 3, label: '3+', description: 'Show restaurants with 3 stars or higher.' },
+                                        { rating: 3.5, label: '3.5+', description: 'Show restaurants with 3.5 stars or higher.' },
+                                        { rating: 4, label: '4+', description: 'Show restaurants with 4 stars or higher.' },
+                                        { rating: 4.5, label: '4.5+', description: 'Show restaurants with 4.5 stars or higher.' }
+                                    ].map((item) => (
+                                        <div key={item.rating} className="relative flex-1">
+                                            {settings.audioAssistance && (
+                                                <div className="absolute -top-2 -right-1 z-40">
+                                                    <SpeakButton
+                                                        text={item.description}
+                                                        size="sm"
+                                                    />
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={() => setMinRating(item.rating)}
+                                                className={`w-full px-3 py-3 rounded-xl font-semibold transition-all duration-300 ${minRating === item.rating
+                                                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-lg scale-105'
+                                                    : 'bg-gray-100 text-[#6C757D] hover:bg-gray-200'
+                                                    }`}
+                                            >
+                                                {item.label}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Cuisines Filter */}
+                            <div>
+                                <label className="text-sm font-bold text-[#212529] mb-3 flex items-center gap-2">
+                                    Cuisines
+                                    {settings.audioAssistance && (
+                                        <SpeakButton
+                                            text="Cuisines filter. Select one or more cuisine types to filter restaurants. Available cuisines include Pizza, Burger, Chinese, Healthy, Sushi, Indian, Dessert, and Drinks."
+                                            size="sm"
+                                        />
+                                    )}
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {cuisineCategories.map((cuisine) => (
+                                        <div key={cuisine.id} className="relative">
+                                            {settings.audioAssistance && (
+                                                <div className="absolute -top-2 -right-2 z-40">
+                                                    <SpeakButton
+                                                        text={`${cuisine.name} cuisine. Tap to ${selectedCuisines.includes(cuisine.name) ? 'remove' : 'add'} this filter.`}
+                                                        size="sm"
+                                                    />
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={() => toggleCuisine(cuisine.name)}
+                                                className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${selectedCuisines.includes(cuisine.name)
+                                                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A] text-white shadow-lg scale-105'
+                                                    : 'bg-gray-100 text-[#6C757D] hover:bg-gray-200'
+                                                    }`}
+                                            >
+                                                <span>{cuisine.icon}</span>
+                                                {cuisine.name}
+                                                {selectedCuisines.includes(cuisine.name) && (
+                                                    <X size={16} />
+                                                )}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Toggle Filters */}
+                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl relative">
+                                {settings.audioAssistance && (
+                                    <div className="absolute top-2 right-2 z-40">
+                                        <SpeakButton
+                                            text={`Show Open Only filter. ${showOpenOnly ? 'Currently enabled. Only showing open restaurants.' : 'Currently disabled. Showing all restaurants including closed ones.'} Tap to toggle.`}
+                                            size="sm"
+                                        />
+                                    </div>
+                                )}
+                                <div className="pr-12">
+                                    <p className="font-semibold text-[#212529]">Show Open Only</p>
+                                    <p className="text-sm text-[#6C757D]">Hide closed restaurants</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowOpenOnly(!showOpenOnly)}
+                                    className={`relative w-14 h-7 rounded-full transition-all duration-300 ${showOpenOnly ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8C3A]' : 'bg-gray-300'
+                                        }`}
+                                >
+                                    <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ${showOpenOnly ? 'translate-x-7' : 'translate-x-0'
+                                        }`} />
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
             </div>
 
             {/* Results Section */}

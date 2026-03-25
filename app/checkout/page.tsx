@@ -8,6 +8,7 @@ import { useAccessibility } from '@/lib/accessibility-context';
 import { Home, CreditCard, MapPin, Clock, Percent, ChevronRight, ArrowLeft, Check, AlertCircle, Bike, Gift } from 'lucide-react';
 import BottomNav from '@/components/layout/BottomNav';
 import SpeakButton from '@/components/ui/SpeakButton';
+import { getAffiliateRef, trackOrderConversion } from '@/lib/clickstream';
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -64,9 +65,13 @@ export default function CheckoutPage() {
         setIsPlacingOrder(true);
 
         try {
-            // Create new order object
+            // Get ClickStream affiliate reference
+            const affiliateRef = getAffiliateRef();
+
+            // Create new order object with affiliate reference
+            const orderId = `ORD-${Date.now()}`;
             const newOrder = {
-                id: `ORD-${Date.now()}`,
+                id: orderId,
                 restaurantId: cart.items[0]?.restaurantId || 'unknown',
                 restaurantName: cart.items[0]?.restaurantName || 'Unknown Restaurant',
                 items: cart.items.map(item => ({
@@ -76,7 +81,9 @@ export default function CheckoutPage() {
                 })),
                 total: total,
                 status: 'pending',
-                created_at: new Date().toISOString()
+                created_at: new Date().toISOString(),
+                // Store ClickStream affiliate reference for conversion tracking
+                affiliateRef: affiliateRef
             };
 
             // Save to localStorage
@@ -86,6 +93,14 @@ export default function CheckoutPage() {
 
             // Simulate network delay
             await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Track conversion with ClickStream (fire and forget)
+            if (affiliateRef) {
+                console.log('[ClickStream] Tracking conversion for order:', orderId);
+                trackOrderConversion(orderId, total).catch(err => {
+                    console.error('[ClickStream] Conversion tracking failed:', err);
+                });
+            }
 
             // Clear cart and redirect
             clearCart();

@@ -1,7 +1,8 @@
 // ClickStream Integration Utilities
 
 const CLICKSTREAM_URL =
-  process.env.NEXT_PUBLIC_CLICKSTREAM_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_CLICKSTREAM_URL ||
+  "https://clickstream-six.vercel.app";
 
 interface ConversionPayload {
   ref: string;

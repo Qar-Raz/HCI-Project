@@ -3,14 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Tag, Gift } from 'lucide-react';
 
-interface AffiliateData {
-    linkId: string;
-    reward: number;
-    type: 'PPC' | 'PPS';
-}
-
 export function AffiliateBanner() {
-    const [affiliateData, setAffiliateData] = useState<AffiliateData | null>(null);
+    const [discountPercent, setDiscountPercent] = useState<number | null>(null);
     const [hasAffiliateCookie, setHasAffiliateCookie] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const initialized = useRef(false);
@@ -20,53 +14,32 @@ export function AffiliateBanner() {
             initialized.current = true;
             console.log('[AffiliateBanner] All cookies:', document.cookie);
 
-            // Read the cs_ref cookie
+            // Read the cs_ref and cs_discount cookies
             const cookies = document.cookie.split(';');
+            let hasRef = false;
+            let discount: number | null = null;
+
             for (const cookie of cookies) {
                 const [name, value] = cookie.trim().split('=');
                 if (name === 'cs_ref' && value) {
-                    console.log('[AffiliateBanner] Raw cookie value:', value);
-
-                    try {
-                        // Try to parse as JSON first
-                        let cleanValue = value;
-
-                        // Remove surrounding quotes if present
-                        if (cleanValue.startsWith('"') && cleanValue.endsWith('"')) {
-                            cleanValue = cleanValue.slice(1, -1);
-                        }
-
-                        // Try parsing as JSON
-                        const parsed = JSON.parse(decodeURIComponent(cleanValue));
-
-                        // Check if it's the new format with reward/type
-                        if (parsed.linkId && parsed.reward !== undefined && parsed.type) {
-                            const data: AffiliateData = parsed;
-                            // Defer state updates to avoid cascading renders
-                            setTimeout(() => {
-                                setAffiliateData(data);
-                                setHasAffiliateCookie(true);
-                                setIsVisible(true);
-                                console.log('[AffiliateBanner] Discount data:', data);
-                            }, 0);
-                        } else {
-                            // Old format - just show fallback banner
-                            console.log('[AffiliateBanner] Old format detected, showing fallback banner');
-                            setTimeout(() => {
-                                setHasAffiliateCookie(true);
-                                setIsVisible(true);
-                            }, 0);
-                        }
-                    } catch (e) {
-                        // Not JSON - show fallback banner
-                        console.log('[AffiliateBanner] Cookie is not JSON, showing fallback banner');
-                        setTimeout(() => {
-                            setHasAffiliateCookie(true);
-                            setIsVisible(true);
-                        }, 0);
-                    }
-                    break;
+                    hasRef = true;
+                    console.log('[AffiliateBanner] Found cs_ref cookie:', value);
                 }
+                if (name === 'cs_discount' && value) {
+                    const num = parseFloat(value);
+                    if (!isNaN(num) && num > 0) {
+                        discount = num;
+                        console.log('[AffiliateBanner] Found cs_discount cookie:', num);
+                    }
+                }
+            }
+
+            if (hasRef) {
+                setTimeout(() => {
+                    setDiscountPercent(discount);
+                    setHasAffiliateCookie(true);
+                    setIsVisible(true);
+                }, 0);
             }
         }
     }, []);
@@ -80,11 +53,7 @@ export function AffiliateBanner() {
     }
 
     // If we have discount data, show the discount banner
-    if (affiliateData) {
-        const discountDisplay = affiliateData.type === 'PPS'
-            ? `${affiliateData.reward}% OFF`
-            : `$${affiliateData.reward.toFixed(2)} OFF`;
-
+    if (discountPercent !== null && discountPercent > 0) {
         return (
             <div className="bg-linear-to-r from-orange-500 to-orange-600 text-white px-4 py-3 relative">
                 <div className="container mx-auto flex items-center justify-between">
@@ -95,12 +64,12 @@ export function AffiliateBanner() {
                         </div>
                         <div className="hidden sm:flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
                             <Tag className="w-4 h-4" />
-                            <span className="text-sm font-bold">{discountDisplay}</span>
+                            <span className="text-sm font-bold">{discountPercent}% OFF</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <span className="text-sm hidden md:block">
-                            You save {discountDisplay} on your order!
+                            You save {discountPercent}% on your order!
                         </span>
                         <button
                             onClick={handleDismiss}

@@ -1,14 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@clerk/nextjs';
 import { useAccessibility } from '@/lib/accessibility-context';
-import { Home, CreditCard, MapPin, Clock, Percent, ChevronRight, ArrowLeft, Check, AlertCircle, Bike, Gift } from 'lucide-react';
+import { Home, CreditCard, MapPin, Clock, Percent, ChevronRight, ArrowLeft, Check, AlertCircle, Bike, Gift, Tag } from 'lucide-react';
 import BottomNav from '@/components/layout/BottomNav';
 import SpeakButton from '@/components/ui/SpeakButton';
 import { getAffiliateRef, trackOrderConversion } from '@/lib/clickstream';
+import { getAffiliateDiscount, calculateAffiliateDiscount } from '@/lib/discount';
+
+// useSyncExternalStore helpers for reading cookie (browser-only external store)
+const emptySubscribe = () => () => { };
+function useAffiliateDiscountPercent() {
+    return useSyncExternalStore(
+        emptySubscribe,
+        () => getAffiliateDiscount(),
+        () => null // server snapshot
+    );
+}
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -21,6 +32,9 @@ export default function CheckoutPage() {
     const [tipAmount, setTipAmount] = useState(100);
     const [saveTip, setSaveTip] = useState(true);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+    // Affiliate discount from cookie (must be called before any early returns)
+    const affiliateDiscountPercent = useAffiliateDiscountPercent();
 
     // Redirect if cart is empty
     useEffect(() => {
@@ -38,7 +52,11 @@ export default function CheckoutPage() {
     const serviceFee = 11.20;
     const priorityFee = deliveryOption === 'priority' ? 50 : 0;
     const vat = 0;
-    const total = subtotal + deliveryFee + serviceFee + priorityFee + vat + tipAmount;
+
+    // Affiliate discount calculation
+    const affiliateDiscount = calculateAffiliateDiscount(subtotal, affiliateDiscountPercent);
+
+    const total = subtotal + deliveryFee + serviceFee + priorityFee + vat + tipAmount - affiliateDiscount;
     const originalTotal = total + 297.20; // Simulated savings
 
     const restaurant = cart.items[0]?.restaurantName || 'Restaurant';
@@ -427,6 +445,15 @@ export default function CheckoutPage() {
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-[#6C757D]">Rider&apos;s Tip</span>
                                         <span className="text-[#212529] font-semibold">Rs. {tipAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {affiliateDiscount > 0 && (
+                                    <div className="flex items-center justify-between text-sm bg-orange-50 -mx-2 px-2 py-1.5 rounded-lg">
+                                        <span className="text-orange-600 font-semibold flex items-center gap-1">
+                                            <Tag size={14} />
+                                            Affiliate Discount ({affiliateDiscountPercent}%)
+                                        </span>
+                                        <span className="text-orange-600 font-semibold">-Rs. {affiliateDiscount.toFixed(2)}</span>
                                     </div>
                                 )}
                             </div>

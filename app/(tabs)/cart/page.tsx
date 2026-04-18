@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Plus, Minus, Trash2, ShoppingBag, Undo2, X } from 'lucide-react';
+import { Plus, Minus, Trash2, ShoppingBag, Undo2, X, Tag } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import SpeakButton from '@/components/ui/SpeakButton';
@@ -11,6 +11,17 @@ import { useCart } from '@/lib/cart-context';
 import { CartItem } from '@/lib/types';
 import { useAccessibility } from '@/lib/accessibility-context';
 import { restaurants } from '@/lib/data';
+import { getAffiliateDiscount, calculateAffiliateDiscount } from '@/lib/discount';
+
+// useSyncExternalStore helpers for reading cookie (browser-only external store)
+const emptySubscribe = () => () => { };
+function useAffiliateDiscountPercent() {
+    return useSyncExternalStore(
+        emptySubscribe,
+        () => getAffiliateDiscount(),
+        () => null // server snapshot
+    );
+}
 
 // Undo popup component
 interface UndoPopupProps {
@@ -91,6 +102,9 @@ export default function CartPage() {
     const [deletedItem, setDeletedItem] = useState<CartItem | null>(null);
     const [undoTimeLeft, setUndoTimeLeft] = useState(5);
 
+    // Affiliate discount from cookie (read via useSyncExternalStore for SSR safety)
+    const affiliateDiscountPercent = useAffiliateDiscountPercent();
+
     // Handle item removal with undo capability
     const handleRemoveItem = useCallback((itemId: string) => {
         const itemToRemove = cart.items.find(item => item.foodItem.id === itemId);
@@ -148,7 +162,8 @@ export default function CartPage() {
     const discount = restaurant?.discount
         ? Math.round(subtotal * (restaurant.discount / 100))
         : 0;
-    const total = subtotal + deliveryFee - discount;
+    const affiliateDiscount = calculateAffiliateDiscount(subtotal, affiliateDiscountPercent);
+    const total = subtotal + deliveryFee - discount - affiliateDiscount;
 
     // Show empty cart view only if cart is empty AND there's no item pending undo
     if (cart.items.length === 0 && !deletedItem) {
@@ -309,6 +324,15 @@ export default function CartPage() {
                             <div className="flex justify-between text-[#28A745]">
                                 <span>Discount ({restaurant?.discount}%)</span>
                                 <span>-Rs {discount}</span>
+                            </div>
+                        )}
+                        {affiliateDiscount > 0 && (
+                            <div className="flex justify-between text-orange-600">
+                                <span className="flex items-center gap-1">
+                                    <Tag size={14} />
+                                    Affiliate Discount ({affiliateDiscountPercent}%)
+                                </span>
+                                <span>-Rs {affiliateDiscount}</span>
                             </div>
                         )}
                         <div className="border-t pt-3 flex justify-between text-[#212529] font-bold text-lg">

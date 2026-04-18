@@ -16,18 +16,32 @@ interface ConversionResponse {
 }
 
 /**
- * Get the affiliate referral ID from cookie
+ * Get the affiliate referral ID from cookie or URL parameter.
+ * Priority: cookie > URL param (for cross-domain scenarios where
+ * ClickStream redirects with ?ref=xxx and the merchant site sets
+ * its own cookie via AffiliateCookieSetter).
  */
 export function getAffiliateRef(): string | null {
   if (typeof document === "undefined") return null;
 
+  // First check cookie (set by AffiliateCookieSetter from URL param)
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
-    if (name === "cs_ref") {
+    if (name === "cs_ref" && value) {
       return value;
     }
   }
+
+  // Fallback: check URL parameter (in case cookie hasn't been set yet)
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      return ref;
+    }
+  }
+
   return null;
 }
 
@@ -105,9 +119,11 @@ export async function trackOrderConversion(
 }
 
 /**
- * Clear the affiliate referral cookie (optional, after conversion)
+ * Clear the affiliate referral and discount cookies (optional, after conversion)
  */
 export function clearAffiliateRef(): void {
   if (typeof document === "undefined") return;
   document.cookie = "cs_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  document.cookie =
+    "cs_discount=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }

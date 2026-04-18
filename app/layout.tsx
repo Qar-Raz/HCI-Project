@@ -8,6 +8,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { LocationProvider } from "@/lib/location-context";
 import { ClerkProvider } from '@clerk/nextjs';
 import { AffiliateBanner } from "@/components/AffiliateBanner";
+import { AffiliateCookieSetter } from "@/components/AffiliateCookieSetter";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.variable} font-sans antialiased bg-[#F8F9FA]`} suppressHydrationWarning>
+          <AffiliateCookieSetter />
           <AffiliateBanner />
           <Script id="microsoft-clarity" strategy="afterInteractive">
             {`
